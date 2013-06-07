@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ -z "$1" ] ; then
+  repoPath="$(pwd)"
+else
+  repoPath="$1"
+fi
+
+for repo in $repoPath/* ; do 
+	if [ -d "$repo" -a -d "$repo/.git" ] ; then 
+		echo "Refreshing $repo"
+		(
+			cd $repo
+			current="$(git branch | awk '/^*/ { print $2}')"
+			[ "$current" == "master" ] || git checkout master &> /dev/null
+			git pull origin master &> /dev/null || echo "Error! Failed to pull repo"
+			[ "$current" == "master" ] || git checkout $currentBranch &> /dev/null
+		)
+	fi
+done
+

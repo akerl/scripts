@@ -1,0 +1,8 @@
+#!/bin/bash
+
+mkdir -p /tmp/maillogs
+
+while read data ; do
+  echo $data >> /tmp/maillogs/${2##*/}
+done
+

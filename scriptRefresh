@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ -z "$1" ] ; then
+  repoPath="$(pwd)"
+else
+  repoPath="$1"
+fi
+
+for file in /usr/local/bin/* ; do
+  if [ -L "$file" ] ; then
+    if [ ! -e "$(readlink $file)" ] ; then
+      rm $file
+    fi
+  fi
+done
+
+for file in $repoPath/*  ; do
+  name=${file##*/}
+  if [ ! -e "/usr/local/bin/$name" ] ; then
+    ln -s $file /usr/local/bin/$name
+  fi 
+done
+

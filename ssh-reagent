@@ -1,13 +1,7 @@
 #!/bin/bash
 
-if [ -n "$1" ] ; then
-  myID="-user $1"
-elif [ "$(id -ru)" != "0" ] ; then
-  myID="-user $(id -ru)"
-fi
-
-for agent in $(find /tmp/ssh* -mindepth 1 $myID) ; do
+for agent in $(find /tmp/ssh* -mindepth 1) ; do
   export SSH_AUTH_SOCK=$agent
-  ssh-add -l 2>&1 > /dev/null && return
+  ssh-add -l 2>&1 > /dev/null && exit
 done
 

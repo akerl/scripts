@@ -58,22 +58,22 @@ def parse_args():
     )
     parser.add_argument(
         '-r', '--reset',
-        type='store_true',
+        action='store_true',
         help='Reset serials to beginning-of-today'
     )
     parser.add_argument(
         '-b', '--bump',
-        type='store_true',
+        action='store_true',
         help='Bump serials in zonefiles',
     )
     parser.add_argument(
         '-u', '--update',
-        type='store_true',
+        action='store_true',
         help='Update NSD database',
     )
     parser.add_argument(
         '-p', '--push',
-        type='store_true',
+        action='store_true',
         help='Push changes to git repo',
     )
 

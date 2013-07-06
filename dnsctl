@@ -81,6 +81,8 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
+    if args.directory:
+        os.chdir(args.directory)
     if args.reset:
         bump_serials(reset=True)
     elif args.bump:

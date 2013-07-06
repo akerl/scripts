@@ -76,6 +76,7 @@ def parse_args():
         action='store_true',
         help='Push changes to git repo',
     )
+    return parser.parse_args()
 
 
 if __name__ == '__main__':

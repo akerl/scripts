@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+
+import os
+import argparse
+import glob
+import fileinput
+import datetime
+
+
+def get_serial(current, reset=False):
+    date = int(datetime.date.today().strftime('%Y%m%d'))
+    if reset or int(current[0:8]) < date:
+        return '{}00'.format(date)
+    else:
+        return '{}'.format(int(current)+1)
+
+
+def bump_serials(reset=False):
+    for zone in glob.glob('*.zone'):
+        edited = False
+        for line in fileinput.input(zone, inplace=True):
+            if edited is False and '; serial number' in line:
+                current_serial = line.split(None, 1)[0]
+                new_serial = get_serial(current_serial, reset=reset)
+                print('  {0} ; serial number'.format(new_serial))
+                edited = True
+            else:
+                print(line.rstrip())
+        print('Bumped {0} to {1} for {2}'.format(
+            current_serial,
+            new_serial,
+            zone
+        ))
+
+
+def update_NSD():
+    print('Updating NSD')
+    os.system('nsdc rebuild')
+    os.system('nsdc reload')
+    os.system('nsdc notify')
+
+
+def push_repo():
+    print('Pushing to git')
+    os.system("git commit -am 'Autocommit: {0}'".format(datetime.date.today()))
+    os.system("git push origin master")
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Nameserver control script'
+    )
+    parser.add_argument(
+        '-d', '--directory',
+        type=str,
+        default='.',
+        help='Path to zonefiles',
+    )
+    parser.add_argument(
+        '-r', '--reset',
+        type='store_true',
+        help='Reset serials to beginning-of-today'
+    )
+    parser.add_argument(
+        '-b', '--bump',
+        type='store_true',
+        help='Bump serials in zonefiles',
+    )
+    parser.add_argument(
+        '-u', '--update',
+        type='store_true',
+        help='Update NSD database',
+    )
+    parser.add_argument(
+        '-p', '--push',
+        type='store_true',
+        help='Push changes to git repo',
+    )
+
+
+if __name__ == '__main__':
+    args = parse_args()
+    if args.reset:
+        bump_serials(reset=True)
+    elif args.bump:
+        bump_serials()
+    if args.update:
+        update_NSD()
+    if args.push:
+        push_repo()
+

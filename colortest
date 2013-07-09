@@ -10,6 +10,9 @@
   #   test use of that color on all nine background
   #   colors (default + 8 escapes).
   #
+  #   TLDP's bash guide is licensed under the GFDL:
+  #   http://www.gnu.org/licenses/fdl-1.3.txt
+  #   Daniel Crisman's license for the below code isn't listed :(
 
   T='gYw'   # The test text
 

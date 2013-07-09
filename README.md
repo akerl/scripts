@@ -51,6 +51,5 @@ Kills any lingering `ssh -fND` processes.
 
 ## License
 
-All scripts except those noted internally are released under the MIT License. See the bundled LICENSE file for
-details.
+All scripts except those noted internally are released under the MIT License. See the bundled LICENSE file for details.
 

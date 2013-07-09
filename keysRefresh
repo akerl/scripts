@@ -19,8 +19,8 @@ fi
 
 [ -f $DESTFILE ] && mv $DESTFILE $DESTFILE.save
 
-for file in $(ls $SOURCEDIR) ; do
-  cat ${SOURCEDIR}/${file} >> $DESTFILE
+for file in $(ls $SOURCEDIR/*.pub) ; do
+  cat ${file} >> $DESTFILE
 done
 echo -e "\n" >> $DESTFILE
 

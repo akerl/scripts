@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+if [[ -z "$1" ]] ; then
+    echo "Please specify a host"
+    exit 1
+fi
+
+ssh -oConnectTimeout=2 $1 true &>/dev/null
+
+if [[ $? -ne 0 ]] ; then
+    echo "I cannot connect"
+    exit 1
+else
+    echo "Connection available"
+    exit
+fi
+

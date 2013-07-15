@@ -1,7 +1,0 @@
-#!/bin/bash
-
-for agent in $(find /tmp/ssh* -mindepth 1) ; do
-  export SSH_AUTH_SOCK=$agent
-  ssh-add -l 2>&1 > /dev/null && exit
-done
-

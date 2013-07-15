@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+default_host='grego'
+
+source_path='/opt/get-hyped/music'
+target_path="${HOME}/Music/iTunes/iTunes Media/Automatically Add to iTunes.localized"
+
+if [[ -n "$1" ]] ; then
+    source_host="$1"
+else
+    source_host="$default_host"
+fi
+
+if [[ ! -d "$target_path" ]] ; then
+    echo "Target path not found: $target_path"
+    exit
+fi
+
+scp $source_host:$source_path/* "$target_path"
+
+if [[ $? -eq 0 ]] ; then
+    echo "Removing source files"
+    ssh $source_host rm $source_path/*
+fi
+

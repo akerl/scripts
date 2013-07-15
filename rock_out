@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-default_host='grego'
+default_host='miro'
 
 source_path='/opt/get-hyped/music'
 target_path="${HOME}/Music/iTunes/iTunes Media/Automatically Add to iTunes.localized"

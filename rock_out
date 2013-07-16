@@ -11,7 +11,7 @@ else
     source_host="$default_host"
 fi
 
-connection_test $source_host || exit
+/usr/local/bin/connection_test $source_host || exit
 
 if [[ ! -d "$target_path" ]] ; then
     echo "Target path not found: $target_path"

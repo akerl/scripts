@@ -12,13 +12,14 @@ else
 fi
 
 /usr/local/bin/connection_test $source_host || exit
+ps aux | grep '[i]Tunes ' >/dev/null && exit
 
 if [[ ! -d "$target_path" ]] ; then
     echo "Target path not found: $target_path"
     exit
 fi
 
-scp $source_host:$source_path/* "$target_path"
+scp -l 1024 $source_host:$source_path/* "$target_path"
 
 if [[ $? -eq 0 ]] ; then
     echo "Removing source files"

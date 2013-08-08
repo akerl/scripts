@@ -3,6 +3,7 @@
 default_host='miro'
 
 source_path='/opt/get-hyped/music'
+tmp_path="/tmp/rock_out_$(date +'%Y%m%d')"
 target_path="${HOME}/Music/iTunes/iTunes Media/Automatically Add to iTunes.localized"
 
 if [[ -n "$1" ]] ; then
@@ -14,12 +15,14 @@ fi
 /usr/local/bin/connection_test $source_host || exit
 ps aux | grep '[i]Tunes ' >/dev/null && exit
 
+mkdir -p $tmp_path
+
 if [[ ! -d "$target_path" ]] ; then
     echo "Target path not found: $target_path"
     exit
 fi
 
-scp -l 1024 $source_host:$source_path/* "$target_path"
+scp -l 4096 $source_host:$source_path/* "$tmp_path" && mv $tmp_path/* "$target_path/"
 
 if [[ $? -eq 0 ]] ; then
     echo "Removing source files"

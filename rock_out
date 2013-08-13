@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-default_host='miro'
+default_host='music'
 
 source_path='/opt/get-hyped/music'
 tmp_path="/tmp/rock_out_$(date +'%Y%m%d')"

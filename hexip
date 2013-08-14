@@ -11,6 +11,6 @@ for ((a=0; a <= 6 ; a=a+2)) ; do
 	ip+=$tmp
 	ip+="."
 done
-echo ${ip%.}
+reverse="$(dig +short -x ${ip%.})"
 
-
+echo ${ip%.} $reverse

@@ -13,7 +13,7 @@ else
 fi
 
 /usr/local/bin/connection_test $source_host || exit
-ps aux | grep '[i]Tunes ' >/dev/null && exit
+#ps aux | grep '[i]Tunes ' >/dev/null && exit
 
 mkdir -p $tmp_path
 

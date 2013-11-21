@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ -z "$1" ] ; then
+    SOURCEDIR="$(pwd)"
+else
+    SOURCEDIR="$1"
+fi
+
+if [ -z "$2" ] ; then
+    DESTFILE="$HOME/.ssh/authorized_keys"
+else
+    DESTFILE="$2"
+fi
+
+if [ -z "$3" ] ; then
+    echo -e "Updating '$DESTFILE' from keys in '$SOURCEDIR'\nPress enter to confirm"
+    read
+fi
+
+[ -f $DESTFILE ] && mv $DESTFILE $DESTFILE.save
+
+TMPFILE="$(mktemp /tmp/keys.XXXXXXXXX)"
+if [ -z "$TMPFILE" ] ; then
+    echo "Failed to create temp file"
+    exit 1
+fi
+
+for file in $(find -L $SOURCEDIR -type f); do
+    ssh-keygen -l -f $file &>/dev/null
+    if [ "$?" != "0" ] ; then
+        echo "$file does not appear to be a public key"
+        exit 1
+    fi
+    cat ${file} >> $TMPFILE
+done
+echo -e "\n" >> $TMPFILE
+
+if [ -z "$3" ] ; then
+    cat $TMPFILE
+    echo -e "Press enter to confirm new keys"
+    read
+fi
+
+mv $TMPFILE $DESTFILE
+

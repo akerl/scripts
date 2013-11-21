@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 hex="$(echo $1 | tr -d '~')"
 
@@ -14,3 +14,4 @@ done
 reverse="$(dig +short -x ${ip%.})"
 
 echo ${ip%.} $reverse
+

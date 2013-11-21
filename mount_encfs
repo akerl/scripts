@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+require 'keychain'
+require 'pathname'
+
+Keychain.generic_passwords.where(service: 'EncFS').all.each do |item|
+  source = File.expand_path(item.account)
+  dest = File.expand_path(item.comment)
+
+  fail 'Paths are incorrect' unless Dir.exist? source and Dir.exist? dest
+  next if Pathname.new(dest).mountpoint?
+
+  encfs = IO.popen "encfs -S '#{source}' '#{dest}'", 'w'
+  encfs.puts item.password
+  encfs.close
+end
+

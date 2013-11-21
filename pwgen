@@ -1,9 +1,0 @@
-#!/bin/bash
-
-case $1 in
-    ''|*[!0-9]*) len=24 ;;
-    *) len="$1" ;;
-esac
-
-cat /dev/urandom | base64 | tr -d '+/' | head -c $len ; echo
-

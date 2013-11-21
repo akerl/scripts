@@ -1,7 +1,6 @@
 #!/bin/sh
-[ "$PAM_TYPE" = "open_session" ] || exit 0
 mail -s "Authentication on $(hostname) via $PAM_SERVICE" root <<CONTENTS
-Timestamp = $(date)
+Timestamp: $(date)
 New user: $PAM_USER
 Originating User: $PAM_RUSER
 TTY: $PAM_TTY

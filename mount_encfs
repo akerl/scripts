@@ -3,6 +3,8 @@
 require 'keychain'
 require 'pathname'
 
+encfs = ARGV.first || '/usr/local/brew/bin/encfs'
+
 Keychain.generic_passwords.where(service: 'EncFS').all.each do |item|
   source = File.expand_path(item.account)
   dest = File.expand_path(item.comment)
@@ -10,8 +12,8 @@ Keychain.generic_passwords.where(service: 'EncFS').all.each do |item|
   fail 'Paths are incorrect' unless Dir.exist? source and Dir.exist? dest
   next if Pathname.new(dest).mountpoint?
 
-  encfs = IO.popen "encfs -S '#{source}' '#{dest}'", 'w'
-  encfs.puts item.password
-  encfs.close
+  mount = IO.popen "#{encfs} -S '#{source}' '#{dest}'", 'w'
+  mount.puts item.password
+  mount.close
 end
 

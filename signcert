@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [ ! -e "$1" ] ; then
-  echo "Please specify a file"
-  exit
-fi
-
-openssl ca -out $1.signed -config /srv/ssl/openssl.cnf -infiles $1
-

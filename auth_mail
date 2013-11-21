@@ -1,5 +1,6 @@
 #!/bin/sh
 mail -s "Authentication on $(hostname) via $PAM_SERVICE" root <<CONTENTS
+Auth type: $PAM_TYPE
 Timestamp: $(date)
 New user: $PAM_USER
 Originating User: $PAM_RUSER

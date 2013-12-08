@@ -1,4 +1,5 @@
 #!/bin/sh
+[[ "$PAM_TYPE" == "close_session" ]] && exit
 mail -s "Authentication on $(hostname) via $PAM_SERVICE" root <<CONTENTS
 Auth type: $PAM_TYPE
 Timestamp: $(date)

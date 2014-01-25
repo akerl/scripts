@@ -36,6 +36,7 @@ def bump_serials(reset=False):
 def update_NSD():
     print('Updating NSD')
     os.system('nsd-control reload')
+    os.system('nsd-control notify')
 
 
 def push_repo():

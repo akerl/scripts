@@ -9,11 +9,10 @@ Keychain.generic_passwords.where(service: 'EncFS').all.each do |item|
   source = File.expand_path(item.account)
   dest = File.expand_path(item.comment)
 
-  fail 'Paths are incorrect' unless Dir.exist? source and Dir.exist? dest
+  fail 'Paths are incorrect' unless Dir.exist?(source) && Dir.exist?(dest)
   next if Pathname.new(dest).mountpoint?
 
   mount = IO.popen "#{encfs} -S '#{source}' '#{dest}'", 'w'
   mount.puts item.password
   mount.close
 end
-

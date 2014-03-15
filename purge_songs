@@ -1,0 +1,9 @@
+tell application "iTunes"
+    set myPlaylist to (playlist "Removable")
+    repeat with myTrack in tracks of myPlaylist
+        set myPath to (location of myTrack as string)
+        tell application "Finder"
+            delete file myPath
+        end tell
+    end repeat
+end tell

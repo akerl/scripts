@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'userinput'
+
+Dir.glob('*').each do |file|
+  new_name = UserInput.new(
+    message: "New name for #{file}",
+    validation: /\w+\.\w+/
+  ).ask
+  FileUtils.move file, new_name
+end

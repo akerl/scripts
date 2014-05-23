@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+Signal.trap('INT') { exit }
+
+files = Dir.glob('**/*').select { |x| File.file?(x) && ! x.include?('meta.yml') }
+quotes = files.map { |x| File.readlines(x) }.flatten.map(&:rstrip).shuffle
+
+quotes.each do |x|
+  system 'clear'
+  puts x
+  gets
+end
+

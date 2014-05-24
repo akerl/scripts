@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+require 'io/console'
+
+def help
+  puts 'Usage: bumpdep updated-gem-name new.version'
+  puts 'Example: bumpdep timecop 0.22.100'
+  exit 1
+end
+
+gem = ARGV.shift || help
+version = ARGV.shift || help
+help unless gem.match(/^\S+$/) && version.match(/^[\d.]+$/)
+
+gems = Dir.glob('**/*.gemspec').select do |x|
+  Dir.exist?(File.dirname(x) + '/.git')
+end
+
+def update_dep(gemspec, current, gem, version)
+  print "Want to update #{gem} to #{version} " \
+    "in #{File.basename(gemspec, '.gemspec')}? [Y/n] "
+  return if gets.chomp.downcase == 'n'
+  current.map! do |x|
+    x.sub(/(?<=_dependency '#{gem}', '~> )[\d.]+(?=')/, version)
+  end
+  File.open(gemspec, 'w') { |fh| fh.write(current.join) }
+  update_repo(gemspec, gem, version)
+end
+
+def update_repo(gemspec, gem, version)
+  Dir.chdir(File.dirname(gemspec)) do
+    system('git', 'add', File.basename(gemspec)) || fail('Failed to add file')
+    message = "Updated version of #{gem} to #{version}"
+    system('git', 'commit', '-m', message) || fail('Failed to commit change')
+    system('git', 'push', 'origin', 'master') || fail('Failed to push change')
+  end
+rescue
+  puts "Failed to update #{gem}"
+end
+
+gems.each do |gemspec|
+  current = File.readlines(gemspec)
+  case current.grep(/_dependency '#{gem}', '~> ([\d.]+)'/).length
+  when 0 then puts "No match in #{File.basename(gemspec, '.gemspec')}"
+  when 1 then update_dep(gemspec, current, gem, version)
+  else puts "#{File.basename(gemspec, '.gemspec')} looks weird, bailing"
+  end
+end

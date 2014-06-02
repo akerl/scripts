@@ -16,20 +16,20 @@ gems = Dir.glob('**/*.gemspec').select do |x|
   Dir.exist?(File.dirname(x) + '/.git')
 end
 
-def try_update(gemspec, current, gem, version)
-  return if current == version
+def try_update(gemspec, current, gem, version, old_version)
+  return if old_version == version
   clean = Dir.chdir(File.dirname(gemspec)) do
     `git status`.match(/working directory clean/)
   end
   if clean
-    update_dep(gemspec, current, gem, version)
+    update_dep(gemspec, current, gem, version, old_version)
   else
     puts "Git repo for #{gem} is not clean"
   end
 end
 
-def update_dep(gemspec, current, gem, version)
-  print "Want to update #{gem} from #{current} to #{version} " \
+def update_dep(gemspec, current, gem, version, old_version)
+  print "Want to update #{gem} from #{old_version} to #{version} " \
     "in #{File.basename(gemspec, '.gemspec')}? [Y/n] "
   return if gets.chomp.downcase == 'n'
   current.map! do |x|
@@ -52,9 +52,9 @@ end
 
 gems.each do |gemspec|
   current = File.readlines(gemspec)
-  case current.grep(/_dependency '#{gem}', '~> ([\d.]+)'/).length
-  when 0 then puts "No match in #{File.basename(gemspec, '.gemspec')}"
-  when 1 then try_update(gemspec, current, gem, version)
-  else puts "#{File.basename(gemspec, '.gemspec')} looks weird, bailing"
+  if current.find { |x| x.match(/_dependency '#{gem}', '~> ([\d.]+)'/) }
+    try_update(gemspec, current, gem, version, $1)
+  else
+    puts "No match in #{File.basename(gemspec, '.gemspec')}"
   end
 end

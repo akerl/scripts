@@ -17,7 +17,7 @@ gems = Dir.glob('**/*.gemspec').select do |x|
 end
 
 def try_update(gemspec, current, gem, version)
-  next if current == version
+  return if current == version
   clean = Dir.chdir(File.dirname(gemspec)) do
     `git status`.match(/working directory clean/)
   end

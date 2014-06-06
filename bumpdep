@@ -10,7 +10,7 @@ end
 
 gem = ARGV.shift || help
 version = ARGV.shift || help
-help unless gem.match(/^\S+$/) && version.match(/^[\d.]+$/)
+help unless gem.match(/^\S+$/) && version.match(/^[\w.]+$/)
 
 gems = Dir.glob('**/*.gemspec').select do |x|
   Dir.exist?(File.dirname(x) + '/.git')
@@ -33,7 +33,7 @@ def update_dep(gemspec, current, gem, version, old_version)
     "in #{File.basename(gemspec, '.gemspec')}? [Y/n] "
   return if gets.chomp.downcase == 'n'
   current.map! do |x|
-    x.sub(/(?<=_dependency '#{gem}', '~> )[\d.]+(?=')/, version)
+    x.sub(/(?<=_dependency '#{gem}', '~> )[\w.]+(?=')/, version)
   end
   File.open(gemspec, 'w') { |fh| fh.write(current.join) }
   update_repo(gemspec, gem, version)
@@ -52,7 +52,7 @@ end
 
 gems.each do |gemspec|
   current = File.readlines(gemspec)
-  if current.find { |x| x.match(/_dependency '#{gem}', '~> ([\d.]+)'/) }
+  if current.find { |x| x.match(/_dependency '#{gem}', '~> ([\w.]+)'/) }
     try_update(gemspec, current, gem, version, $1)
   else
     puts "No match in #{File.basename(gemspec, '.gemspec')}"

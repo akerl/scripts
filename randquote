@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+unless File.exists meta.yml
+  puts 'You should run this from the quotes directory'
+  exit
+end
+
 Signal.trap('INT') { exit }
 
 files = Dir.glob('**/*').select { |x| File.file?(x) && !x.match(/\.yml|\.md/) }

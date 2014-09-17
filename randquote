@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-unless File.exists meta.yml
+unless File.exists 'meta.yml'
   puts 'You should run this from the quotes directory'
   exit
 end

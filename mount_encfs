@@ -11,8 +11,8 @@ Keychain.generic_passwords.where(service: 'EncFS').all.each do |item|
 
   fail 'Paths are incorrect' unless Dir.exist?(source) && Dir.exist?(dest)
   next if Pathname.new(dest).mountpoint?
-
-  mount = IO.popen "#{encfs} -S '#{source}' '#{dest}'", 'w'
+  mount = IO.popen "#{encfs} -S '#{source}' '#{dest}'", 'r+'
   mount.puts item.password
+  mount.gets
   mount.close
 end

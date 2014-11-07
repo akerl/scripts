@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+
+Cask = Struct.new :name, :current, :latest
+
+def current_version(cask_name)
+  Dir.new("/opt/homebrew-cask/Caskroom/#{cask_name}").to_a.last
+end
+
+def latest_version(cask_name)
+  `brew cask info #{cask_name}`.split[1]
+end
+
+def update(cask)
+  system 'brew', 'cask', 'uninstall', '--force', cask.name
+  system 'brew', 'cask', 'install', cask.name
+end
+
+cask_names = `brew cask list -1`.split
+
+Casks = cask_names.map do |cask_name|
+  Cask.new(
+    name: cask_name,
+    current: current_version(cask_name),
+    latest: latest_version(cask_name)
+  )
+end
+
+Casks.each do |cask|
+  update(cask) unless cask.current = cask.latest
+end

@@ -10,7 +10,8 @@ def latest_version(cask_name)
   `brew cask info #{cask_name}`.split[1]
 end
 
-def update(cask)
+def upgrade(cask)
+  puts "Upgrading #{cask.name} from #{cask.current} to #{cask.latest}"
   system 'brew', 'cask', 'uninstall', '--force', cask.name
   system 'brew', 'cask', 'install', cask.name
 end
@@ -19,12 +20,14 @@ cask_names = `brew cask list -1`.split
 
 Casks = cask_names.map do |cask_name|
   Cask.new(
-    name: cask_name,
-    current: current_version(cask_name),
-    latest: latest_version(cask_name)
+    cask_name,
+    current_version(cask_name),
+    latest_version(cask_name)
   )
 end
 
+puts "Found #{Casks.size} casks"
+
 Casks.each do |cask|
-  update(cask) unless cask.current = cask.latest
+  upgrade(cask) if cask.latest == 'latest' || cask.current != cask.latest
 end

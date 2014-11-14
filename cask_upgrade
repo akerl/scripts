@@ -16,7 +16,7 @@ def upgrade(cask)
   system 'brew', 'cask', 'install', cask.name
 end
 
-cask_names = `brew cask list -1`.split
+cask_names = ARGV || `brew cask list -1`.split
 
 Casks = cask_names.map do |cask_name|
   Cask.new(

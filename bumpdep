@@ -8,12 +8,26 @@ def help
   exit 1
 end
 
-gem = ARGV.shift || help
-version = ARGV.shift || help
-help unless gem.match(/^\S+$/) && version.match(/^[\w.]+$/)
+def update_repo(gemspec, gem, version)
+  Dir.chdir(File.dirname(gemspec)) do
+    system('git', 'add', File.basename(gemspec)) || fail('Failed to add file')
+    message = "Updated version of #{gem} to #{version}"
+    system('git', 'commit', '-m', message) || fail('Failed to commit change')
+    system('git', 'push', 'origin', 'master') || fail('Failed to push change')
+  end
+rescue
+  puts "Failed to update #{gem}"
+end
 
-gems = Dir.glob('**/*.gemspec').select do |x|
-  Dir.exist?(File.dirname(x) + '/.git')
+def update_dep(gemspec, current, gem, version, old_version)
+  print "Want to update #{gem} from #{old_version} to #{version} " \
+    "in #{File.basename(gemspec, '.gemspec')}? [Y/n] "
+  return if gets.chomp.downcase == 'n'
+  current.map! do |x|
+    x.sub(/(?<=_dependency '#{gem}', '~> )[\w.]+(?=')/, version)
+  end
+  File.open(gemspec, 'w') { |fh| fh.write(current.join) }
+  update_repo(gemspec, gem, version)
 end
 
 def try_update(gemspec, current, gem, version, old_version)
@@ -28,33 +42,26 @@ def try_update(gemspec, current, gem, version, old_version)
   end
 end
 
-def update_dep(gemspec, current, gem, version, old_version)
-  print "Want to update #{gem} from #{old_version} to #{version} " \
-    "in #{File.basename(gemspec, '.gemspec')}? [Y/n] "
-  return if gets.chomp.downcase == 'n'
-  current.map! do |x|
-    x.sub(/(?<=_dependency '#{gem}', '~> )[\w.]+(?=')/, version)
+def parse_gemspecs(gems, gem, version)
+  gems.each do |gemspec|
+    current = File.readlines(gemspec)
+    if current.find { |x| x.match(/_dependency '#{gem}', '~> ([\w.]+)'/) }
+      try_update(gemspec, current, gem, version, $1)
+    else
+      puts "No match in #{File.basename(gemspec, '.gemspec')}"
+    end
   end
-  File.open(gemspec, 'w') { |fh| fh.write(current.join) }
-  update_repo(gemspec, gem, version)
 end
 
-def update_repo(gemspec, gem, version)
-  Dir.chdir(File.dirname(gemspec)) do
-    system('git', 'add', File.basename(gemspec)) || fail('Failed to add file')
-    message = "Updated version of #{gem} to #{version}"
-    system('git', 'commit', '-m', message) || fail('Failed to commit change')
-    system('git', 'push', 'origin', 'master') || fail('Failed to push change')
+def find_files(pattern)
+  Dir.glob("**/#{pattern}").select do |x|
+    Dir.exist?(File.dirname(x) + '/.git')
   end
-rescue
-  puts "Failed to update #{gem}"
 end
 
-gems.each do |gemspec|
-  current = File.readlines(gemspec)
-  if current.find { |x| x.match(/_dependency '#{gem}', '~> ([\w.]+)'/) }
-    try_update(gemspec, current, gem, version, $1)
-  else
-    puts "No match in #{File.basename(gemspec, '.gemspec')}"
-  end
-end
+gem = ARGV.shift || help
+version = ARGV.shift || help
+help unless gem.match(/^\S+$/) && version.match(/^[\w.]+$/)
+
+parse_gemspecs find_files('*.gemspec'), gem, version
+

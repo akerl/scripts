@@ -32,7 +32,7 @@ def update_dep(gemspec, current, gem, version, old_version, noconfirm)
   update_repo(gemspec, gem, version)
 end
 
-def try_update(gemspec, current, gem, version, old_version)
+def try_update(gemspec, current, gem, version, old_version, noconfirm)
   return if old_version == version
   clean = Dir.chdir(File.dirname(gemspec)) do
     `git status`.match(/working directory clean/)

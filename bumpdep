@@ -3,7 +3,7 @@
 require 'io/console'
 
 def help
-  puts 'Usage: bumpdep updated-gem-name new.version'
+  puts 'Usage: bumpdep updated-gem-name new.version [noconfirm]'
   puts 'Example: bumpdep timecop 0.22.100'
   exit 1
 end
@@ -19,10 +19,12 @@ rescue
   puts "Failed to update #{gem}"
 end
 
-def update_dep(gemspec, current, gem, version, old_version)
-  print "Want to update #{gem} from #{old_version} to #{version} " \
-    "in #{File.basename(gemspec, '.gemspec')}? [Y/n] "
-  return if gets.chomp.downcase == 'n'
+def update_dep(gemspec, current, gem, version, old_version, noconfirm)
+  unless noconfirm
+    print "Want to update #{gem} from #{old_version} to #{version} " \
+      "in #{File.basename(gemspec, '.gemspec')}? [Y/n] "
+    return if gets.chomp.downcase == 'n'
+  end
   current.map! do |x|
     x.sub(/(?<=_dependency '#{gem}', '~> )[\w.]+(?=')/, version)
   end
@@ -36,17 +38,17 @@ def try_update(gemspec, current, gem, version, old_version)
     `git status`.match(/working directory clean/)
   end
   if clean
-    update_dep(gemspec, current, gem, version, old_version)
+    update_dep(gemspec, current, gem, version, old_version, noconfirm)
   else
     puts "Git repo for #{gem} is not clean"
   end
 end
 
-def parse_gemspecs(gems, gem, version)
+def parse_gemspecs(gems, gem, version, noconfirm)
   gems.each do |gemspec|
     current = File.readlines(gemspec)
     if current.find { |x| x.match(/_dependency '#{gem}', '~> ([\w.]+)'/) }
-      try_update(gemspec, current, gem, version, $1)
+      try_update(gemspec, current, gem, version, $1, noconfirm)
     else
       puts "No match in #{File.basename(gemspec, '.gemspec')}"
     end
@@ -61,7 +63,8 @@ end
 
 gem = ARGV.shift || help
 version = ARGV.shift || help
+noconfirm = ARGV.shift || nil
 help unless gem.match(/^\S+$/) && version.match(/^[\w.]+$/)
 
-parse_gemspecs find_files('*.gemspec'), gem, version
+parse_gemspecs find_files('*.gemspec'), gem, version, noconfirm
 

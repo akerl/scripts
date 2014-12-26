@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-Cask = Struct.new :name, :current, :latest
+require 'optparse'
 
 def current_version(cask_name)
   Dir.new("/opt/homebrew-cask/Caskroom/#{cask_name}").to_a.last
@@ -16,7 +16,21 @@ def upgrade(cask)
   system 'brew', 'cask', 'install', cask.name
 end
 
+def noop(cask)
+  puts "Would upgrade #{cask.name} from #{cask.current} to #{cask.latest}"
+end
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = 'Usage: cask_upgrade [-n|--noop] [cask_name]'
+  opts.on('-n', '--noop', 'Do not perform upgrade(s)') do
+    options[:noop] = true
+  end
+end.parse!
+
 cask_names = ARGV || `brew cask list -1`.split
+
+Cask = Struct.new :name, :current, :latest
 
 Casks = cask_names.map do |cask_name|
   Cask.new(
@@ -29,5 +43,7 @@ end
 puts "Found #{Casks.size} casks"
 
 Casks.each do |cask|
-  upgrade(cask) if cask.latest == 'latest' || cask.current != cask.latest
+  if cask.latest == 'latest' || cask.current != cask.latest
+    options[:noop] ? noop(cask) : upgrade(cask)
+  end
 end

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+UPDATECMD='vim -E -c BundleInstall -c qall'
+
+tmux new-session -d -s vundle "$UPDATECMD"
+

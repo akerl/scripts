@@ -12,16 +12,15 @@ else
     repoPath="$2"
 fi
 
-for repo in $repoPath/* ; do 
-    if [ -d "$repo" -a -d "$repo/.git" ] ; then 
-        echo "Refreshing $repo"
-        (
-            cd $repo
-            current="$(git branch | awk '/^*/ { print $2}')"
-            [ "$current" == "master" ] || git checkout master &> /dev/null
-            git $action origin master &> /dev/null || echo "Error! Failed to pull repo"
-            [ "$current" == "master" ] || git checkout $currentBranch &> /dev/null
-        )
-    fi
+for gitDir in $(find $repoPath -type d -name '.git') ; do 
+    repo="$(dirname $gitDir)"
+    echo "Refreshing $repo"
+    (
+        cd $repo
+        current="$(git branch | awk '/^*/ { print $2}')"
+        [ "$current" == "master" ] || git checkout master &> /dev/null
+        git $action origin master &> /dev/null || echo "Error! Failed to pull repo"
+        [ "$current" == "master" ] || git checkout $currentBranch &> /dev/null
+    )
 done
 

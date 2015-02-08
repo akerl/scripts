@@ -42,4 +42,5 @@ end
 
 start = Date.today
 finish = start >> months
+write_line(start, value, 0, 'initial value')
 start.upto(finish).each { |date| value = parse_day(value, date, CALENDAR) }

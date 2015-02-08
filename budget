@@ -5,8 +5,9 @@ require 'date'
 require 'cymbal'
 
 def add_action(calendar, action, date)
-  action[:amount] *= -1 unless action[:type] == 'income'
-  calendar[date] << { name: action[:name], amount: action[:amount] }
+  amount = action[:amount]
+  amount *= -1 unless action[:type] == 'income'
+  calendar[date] << { name: action[:name], amount: amount }
 end
 
 def write_line(date, value, change, name)

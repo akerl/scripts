@@ -9,17 +9,37 @@ def add_action(calendar, action, date)
   calendar[date] << { name: action[:name], amount: action[:amount] }
 end
 
+def write_line(date, value, change, name)
+  args = [date, value.to_s.rjust(10), change.to_s.rjust(10), name]
+  puts args.join(' | ')
+end
+
+def parse_day(value, date, calendar)
+  days = [date.day]
+  days = date.day.upto(date.day + 3).to_a unless date.month == date.next.month
+  days.each do |day|
+    calendar[day].each do |action|
+      value += action[:amount]
+      write_line(date, value, action[:amount], action[:name])
+    end
+  end
+  value
+end
+
 activity_file = ARGV.shift
-current_value = (ARGV.shift || 0).to_i
+value = (ARGV.shift || 0).to_i
 months = (ARGV.shift || 6).to_i
 
-ACTIVITY = Cymbal.symbolize(File.open(activity_file) { |fh| YAML.load fh })
+ACTIONS = Cymbal.symbolize(File.open(activity_file) { |fh| YAML.load fh })
 
 CALENDAR = Hash.new { |h, k| h[k] = [] }
 
-ACTIVITY.each_with_object(CALENDAR) do |action, calendar|
+ACTIONS.each_with_object(CALENDAR) do |action, calendar|
   dates = action[:when]
   dates = [dates] unless dates.is_a? Array
   dates.each { |date| add_action(calendar, action, date) }
 end
 
+start = Date.today
+finish = start >> months
+start.upto(finish).each { |date| value = parse_day(value, date, CALENDAR) }

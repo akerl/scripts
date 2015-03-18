@@ -11,6 +11,14 @@ Personal scripts and such. Mostly written by me, but a couple borrowed from the 
 
 Used by PAM to send an email with information when an authentication occurs
 
+### budget
+
+Quick script to calculate budget based on a YAML file of income/expenses
+
+### cask_upgrade
+
+removes old cask versions and installs the latest version
+
 ### colors
 
 Taken from http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html, it prints out a table of colors for easy comparison.
@@ -22,6 +30,14 @@ Checks if I can currently SSH into a given user/hostname. I use this for confirm
 ### dnsctl
 
 Helper script for maintaining zonefile serials and reloading NSD.
+
+### git-open
+
+Taken from https://github.com/paulirish/git-open/ , this opens the current git repo on github
+
+### github-repo-list.rb
+
+Lists all repos you have access to on github. I used to use this to clone all my repos locally, but now use [spaarti](https://github.com/akerl/spaarti) for that
 
 ### hexip
 
@@ -38,6 +54,22 @@ A replacement "mail" for logrotate, so that log files get dropped into a directo
 ### mount_encfs
 
 Ruby script to mount my EncFS volumes using info from the OSX Keychain. Details on how I do this can be found here: http://blog.akerl.org/2013/12/07/encrypted-cloud-storage.html
+
+### nftables
+
+Super simple init script for nftables
+
+### pacman-init
+
+Loads pacman keyring
+
+### purge_songs
+
+Doesn't work, was intended to clean up local songs I'd synced to iTunes Match
+
+### randquote
+
+Pulls random quotes from [my quote lists](https://github.com/akerl/quotes)
 
 ### repo_pull
 
@@ -58,6 +90,14 @@ Prunes dead symlinks in /usr/local/bin and puts in symlinks for any scripts in t
 ### tunnelkill
 
 Kills any lingering `ssh -fND` processes.
+
+### vundle_update
+
+Hacky script for opening vim automatically and running vundle_update
+
+### xsa_list.rb
+
+Lists XSAs from http://xenbits.xen.org/xsa/
 
 ## License
 

@@ -30,7 +30,7 @@ def get_days(date)
 end
 
 def out_of_bounds?(action, day)
-  if action[:starts] && action[:start] > day
+  if action[:starts] && action[:starts] > day
     true
   elsif action[:ends] && action[:ends] < day
     true

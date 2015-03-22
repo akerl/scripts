@@ -30,9 +30,9 @@ def get_days(date)
 end
 
 def out_of_bounds?(action, day)
-  if action[:starts] && action[:starts] > day
+  if action[:starts] && Date.parse(action[:starts]) > day
     true
-  elsif action[:ends] && action[:ends] < day
+  elsif action[:ends] && Date.parse(action[:ends]) < day
     true
   else
     false

@@ -4,10 +4,19 @@ require 'yaml'
 require 'date'
 require 'cymbal'
 
+##
+# Add .subset to Hash for selecting a subhash
+class Hash
+  def subset(*keys)
+    select { |k| keys.include? k }
+  end
+end
+
 def add_action(calendar, action, date)
   amount = action[:amount]
   amount *= -1 unless action[:type] == 'income'
-  calendar[date] << { name: action[:name], amount: amount }
+  action = action.subset(:name, :starts, :ends)
+  calendar[date] << action.merge(amount: amount)
 end
 
 def write_line(date, value, change, name)
@@ -15,11 +24,25 @@ def write_line(date, value, change, name)
   puts args.join(' | ')
 end
 
+def get_days(date)
+  return [date.day] if date.month == date.next.month
+  date.day.upto(date.day + 3).to_a
+end
+
+def out_of_bounds?(action, day)
+  if action[:starts] && action[:start] > day
+    true
+  elsif action[:ends] && action[:ends] < day
+    true
+  else
+    false
+  end
+end
+
 def parse_day(value, date, calendar)
-  days = [date.day]
-  days = date.day.upto(date.day + 3).to_a unless date.month == date.next.month
-  days.each do |day|
+  get_days(date).each do |day|
     calendar[day].each do |action|
+      next if out_of_bounds?(action, day)
       value += action[:amount]
       write_line(date, value, action[:amount], action[:name])
     end

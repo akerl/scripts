@@ -42,7 +42,7 @@ end
 def parse_day(value, date, calendar)
   get_days(date).each do |day|
     calendar[day].each do |action|
-      next if out_of_bounds?(action, day)
+      next if out_of_bounds?(action, date)
       value += action[:amount]
       write_line(date, value, action[:amount], action[:name])
     end

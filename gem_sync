@@ -12,6 +12,8 @@ rbenv sh-shell $1
 GEMS="$(gem list --no-versions --no-verbose)"
 rbenv sh-shell --unset
 
+echo "Gems to install: $GEMS"
+
 for i in $GEMS ; do
     gem install $i
 done

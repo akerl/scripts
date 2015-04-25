@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 if [ -z "$1" ] ; then
     echo 'Usage: gem_sync <old_ruby_version>'

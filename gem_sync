@@ -8,9 +8,9 @@ fi
 OLD="$1"
 NEW="$(rbenv global)"
 
-rbenv shell $1
+rbenv sh-shell $1
 GEMS="$(gem list --no-versions --no-verbose)"
-rbenv shell --unset
+rbenv sh-shell --unset
 
 for i in $GEMS ; do
     gem install $i

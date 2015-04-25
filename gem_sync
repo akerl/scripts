@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+if [ -z "$1" ] ; then
+    echo 'Usage: gem_sync <old_ruby_version>'
+    exit 1
+fi
+
+OLD="$1"
+NEW="$(rbenv global)"
+
+rbenv shell $1
+GEMS="$(gem list --no-versions --no-verbose)"
+rbenv shell --unset
+
+for i in $GEMS ; do
+    gem install $i
+done
+

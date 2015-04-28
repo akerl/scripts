@@ -8,13 +8,13 @@ fi
 OLD="$1"
 NEW="$(rbenv global)"
 
-rbenv sh-shell $1
-GEMS="$(gem list --no-versions --no-verbose)"
-rbenv sh-shell --unset
+GEMFILE="$(mktemp)"
+echo "source 'https://rubygems.org'" > $GEMFILE
 
-echo "Gems to install: $GEMS"
+rbenv shell $1
+gem list --no-versions --no-verbose | sed 's/\(.*\)/gem "\1"/' >> $GEMFILE
+rbenv shell --unset
 
-for i in $GEMS ; do
-    gem install $i
-done
+gem install bundler
+bundle install --gemfile=$GEMFILE
 

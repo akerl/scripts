@@ -1,20 +1,25 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env ruby
 
-if [ -z "$1" ] ; then
-    echo 'Usage: gem_sync <old_ruby_version>'
-    exit 1
-fi
+OLD_VERSION = ARGV.first
 
-OLD="$1"
-NEW="$(rbenv global)"
+fail("Usage: #{__FILE__} <old-version>") unless OLD_VERSION
 
-GEMFILE="$(mktemp)"
-echo "source 'https://rubygems.org'" > $GEMFILE
+unless `rbenv versions --bare`.split.include? OLD_VERSION
+  fail "Ruby version not found: #{OLD_VERSION}"
+end
 
-rbenv shell $1
-gem list --no-versions --no-verbose | sed 's/\(.*\)/gem "\1"/' >> $GEMFILE
-rbenv shell --unset
+cmd = `RBENV_VERSION=#{OLD_VERSION} rbenv exec gem list`
+gems = cmd.lines.map { |x| x.gsub(/[\n(),]/, '').split }
 
-gem install bundler
-bundle install --gemfile=$GEMFILE
+def installed?(gem, version)
+  system "gem list -i #{gem} -v #{version} >/dev/null 2>/dev/null"
+end
 
+gems.each do |gem, *versions|
+  versions.each do |version|
+    next if installed? gem, version
+    puts "Installing #{gem} #{version}"
+    next if installed? gem, version
+    puts 'Failed to install!'
+  end
+end

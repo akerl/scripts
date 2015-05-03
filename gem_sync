@@ -19,6 +19,7 @@ gems.each do |gem, *versions|
   versions.each do |version|
     next if installed? gem, version
     puts "Installing #{gem} #{version}"
+    `gem install #{gem} -v #{version} >/dev/null 2>/dev/null`
     next if installed? gem, version
     puts 'Failed to install!'
   end

@@ -14,7 +14,6 @@ fi
 
 for gitDir in $(find $repoPath -type d -name '.git') ; do 
     repo="$(dirname $gitDir)"
-    echo "Refreshing $repo"
     (
         cd $repo
         current="$(git branch | awk '/^*/ { print $2}')"

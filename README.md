@@ -47,6 +47,10 @@ Tiny script to take an IP in hex and spit it out as a dotted quad.
 
 Takes all the \*.pub files in a directory and concatenates them into a file. I use it to load my keys repo into ~/.ssh/authorized\_keys.
 
+### link_check
+
+Scans $PATH for binaries and checks if they're linked against any libraries that aren't available. Output is formatted at "$ARCH_PACKAGE $BINARY $LIBRARY1 ... $LIBRARYN"
+
 ### maillog
 
 A replacement "mail" for logrotate, so that log files get dropped into a directory for further processing rather than being shipped off immediately. Used in conjunction with https://github.com/akerl/archer/blob/master/common/files/logrotate.cron and https://github.com/akerl/logpull

@@ -41,7 +41,7 @@ end
 
 LIST = Nokogiri::HTML(open(URL)).xpath(XPATH)[1..-1].map { |x| XSA.new(x) }
 
-LIST.each do |xsa|
+LIST.reverse.each do |xsa|
   puts [
     xsa.id.to_s.rjust(3),
     xsa.release_dt.to_date,

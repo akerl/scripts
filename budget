@@ -64,7 +64,7 @@ ACTIONS.each_with_object(CALENDAR) do |action, calendar|
   dates.each { |date| add_action(calendar, action, date) }
 end
 
-start = Date.today
+start = Date.today + 1
 finish = start >> months
 write_line(start, value, 0, 'initial value')
 start.upto(finish).each { |date| value = parse_day(value, date, CALENDAR) }

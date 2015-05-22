@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require 'octoauth'
+require 'octokit'
+
+title = ARGV.shift
+body = ARGV.shift
+fail('no title provided') unless title
+
+remote_info = `git remote show origin`.lines
+remote = remote_info.find { |x| x.match('Fetch URL') }.split.last
+fail('origin is not a github repo') unless remote_url.match('github.com')
+repo = remote.gsub(/.*github\.com[:\/]/, '').gsub('.git', '')
+
+auth = Octoauth.new note: 'issues', file: :default, autosave: true
+client = Octokit::Client.new access_token: auth.token, auto_paginate: true
+
+client.create_issue(repo, title, body)
+

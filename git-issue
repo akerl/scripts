@@ -12,7 +12,12 @@ remote = remote_info.find { |x| x.match('Fetch URL') }.split.last
 fail('origin is not a github repo') unless remote.match('github.com')
 repo = remote.gsub(/.*github\.com[:\/]/, '').gsub('.git', '')
 
-auth = Octoauth.new note: 'issues', file: :default, autosave: true
+auth = Octoauth.new(
+  note: 'issues',
+  file: :default,
+  autosave: true,
+  scopes: ['repo', 'public_repo']
+)
 client = Octokit::Client.new access_token: auth.token, auto_paginate: true
 
 client.create_issue(repo, title, body)

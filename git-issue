@@ -9,7 +9,7 @@ fail('no title provided') unless title
 
 remote_info = `git remote show origin`.lines
 remote = remote_info.find { |x| x.match('Fetch URL') }.split.last
-fail('origin is not a github repo') unless remote_url.match('github.com')
+fail('origin is not a github repo') unless remote.match('github.com')
 repo = remote.gsub(/.*github\.com[:\/]/, '').gsub('.git', '')
 
 auth = Octoauth.new note: 'issues', file: :default, autosave: true

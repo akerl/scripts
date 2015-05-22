@@ -31,6 +31,10 @@ Checks if I can currently SSH into a given user/hostname. I use this for confirm
 
 Helper script for maintaining zonefile serials and reloading NSD.
 
+### git-issue
+
+Creates an issue in the current GitHub repo
+
 ### git-open
 
 Taken from https://github.com/paulirish/git-open/ , this opens the current git repo on github

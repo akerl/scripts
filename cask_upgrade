@@ -28,7 +28,7 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-cask_names = ARGV || `brew cask list -1`.split
+cask_names = ARGV.empty? ? `brew cask list -1`.split : ARGV
 
 Cask = Struct.new :name, :current, :latest
 

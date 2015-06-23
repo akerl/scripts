@@ -2,8 +2,28 @@
 
 require 'optparse'
 
+CACHE_DIR = [
+  ENV['HOMEBREW_CACHE'],
+  File.expand_path('~/Library/Caches/Homebrew'),
+  '/Library/Caches/Homebrew'
+].find { |x| x && File.exist?(x) }
+
+def get_hash(path)
+  `sha256sum #{path}`.split.first
+end
+
 def current_version(cask_name)
-  Dir.new("/opt/homebrew-cask/Caskroom/#{cask_name}").to_a.last
+  version = Dir.new("/opt/homebrew-cask/Caskroom/#{cask_name}").to_a.last
+  version == 'latest' ? check_latest(cask_name) : version
+end
+
+def check_latest(cask_name)
+  path = Dir.glob("#{CACHE_DIR}/#{cask_name}-latest*").first
+  return 'not-latest' unless path
+  current_hash = get_hash path
+  `brew cask fetch --force #{cask_name}`
+  new_hash = get_hash path
+  current_hash == new_hash ? 'latest' : 'not-latest'
 end
 
 def latest_version(cask_name)
@@ -43,7 +63,7 @@ end
 puts "Found #{Casks.size} casks"
 
 Casks.each do |cask|
-  if cask.latest == 'latest' || cask.current != cask.latest
+  if cask.current != cask.latest
     options[:noop] ? noop(cask) : upgrade(cask)
   end
 end

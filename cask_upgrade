@@ -9,7 +9,7 @@ CACHE_DIR = [
 ].find { |x| x && File.exist?(x) }
 
 def get_hash(path)
-  `sha256sum #{path}`.split.first
+  `shasum #{path}`.split.first
 end
 
 def current_version(cask_name)

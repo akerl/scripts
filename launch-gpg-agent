@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+homedir="${1}"
+: ${homedir:=$GNUPGHOME}
+: ${homedir:=~/.gnupg}
+agentfile="${HOME}/.gpg-agent.d/${homedir//\//.}"
+
+[ -f "${agentfile}" ] && . $agentfile
+
+oldpid=$(echo $GPG_AGENT_INFO | cut -d: -f2)
+matchstring="${GPG_AGENT_PID}.*${agentfile}"
+
+if [ -z "$oldpid" -o -z "$(ps aux | grep "$matchstring")" ] ; then
+    touch $agentfile
+    chmod 600 $agentfile
+    /usr/bin/env gpg-agent --homedir $homedir --daemon --write-env-file $agentfile
+fi
+
+echo $agentfile
+

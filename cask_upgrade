@@ -49,6 +49,7 @@ OptionParser.new do |opts|
 end.parse!
 
 cask_names = ARGV.empty? ? `brew cask list -1`.split : ARGV
+cask_names.reject! { |x| x == '(!)' }
 
 Cask = Struct.new :name, :current, :latest
 

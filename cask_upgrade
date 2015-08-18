@@ -40,6 +40,10 @@ def noop(cask)
   puts "Would upgrade #{cask.name} from #{cask.current} to #{cask.latest}"
 end
 
+def list_casks
+  `brew cask list -1`.split("\n").reject { |x| x.match('(!)') }
+end
+
 options = {}
 OptionParser.new do |opts|
   opts.banner = 'Usage: cask_upgrade [-n|--noop] [cask_name]'
@@ -48,8 +52,7 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-cask_names = ARGV.empty? ? `brew cask list -1`.split : ARGV
-cask_names.reject! { |x| x == '(!)' }
+cask_names = ARGV.empty? ? list_casks : ARGV
 
 Cask = Struct.new :name, :current, :latest
 

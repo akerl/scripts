@@ -11,8 +11,9 @@ if [ -z "$2" ] ; then
 else
     repoPath="$2"
 fi
+cd "$repoPath"
 
-for gitDir in $(find -L $repoPath -type d -name '.git') ; do
+for gitDir in $(find . -type d -name '.git') ; do
     repo="$(dirname $gitDir)"
     (
         cd $repo

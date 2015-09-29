@@ -12,7 +12,7 @@ else
     repoPath="$2"
 fi
 
-for gitDir in $(find $repoPath -type d -name '.git') ; do 
+for gitDir in $(find -L $repoPath -type d -name '.git') ; do
     repo="$(dirname $gitDir)"
     (
         cd $repo

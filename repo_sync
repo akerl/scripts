@@ -16,7 +16,7 @@ for gitDir in $(find $repoPath -type d -name '.git') ; do
     repo="$(dirname $gitDir)"
     (
         cd $repo
-        current="$(git branch | awk '/^*/ { print $2}')"
+        current="$(git branch | awk '/^\*/ { print $2}')"
         [ "$current" == "master" ] || git checkout master &> /dev/null
         git $action origin master &> /dev/null \
             || echo "Error! Failed to pull $repo"

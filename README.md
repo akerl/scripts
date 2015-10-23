@@ -19,6 +19,10 @@ Quick script to calculate budget based on a YAML file of income/expenses
 
 removes old cask versions and installs the latest version
 
+### circleci_fails.rb
+
+This lists any unsuccessful builds you have in CircleCI
+
 ### colors
 
 Taken from http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html, it prints out a table of colors for easy comparison.

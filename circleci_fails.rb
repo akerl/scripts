@@ -7,6 +7,7 @@ def request_token
   `stty -echo`
   print 'Please enter CircleCI token: '
   gets
+  puts
 ensure
   `stty echo`
 end

@@ -16,11 +16,13 @@ raw = open("https://circleci.com/api/v1/projects?circle-token=#{token}")
 json = JSON.load(raw)
 
 repos = json.map do |x|
-  name = x['vcs_url'][19..-1]
+  url = x['vcs_url'].sub('github.com', 'circleci.com/gh')
   status = x['branches']['master']['recent_builds'].first['status']
-  [name, status]
+  [url, status]
 end
-repos.sort! { |a, b| a.first <=> b.first }
-repos.reject! { |name, state| ['success', 'fixed'].include? state }
+repos.reject! { |_, state| ['success', 'fixed'].include? state }
+repos.sort_by!(&:first)
 
-repos.each { |name, state| puts "#{name}: #{state}" }
+url_width = repos.map(&:first).map(&:size).max
+
+repos.each { |url, state| puts "#{url.ljust(url_width)} #{state}" }

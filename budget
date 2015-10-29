@@ -1,5 +1,44 @@
 #!/usr/bin/env ruby
 
+=begin
+Example schema:
+
+---
+# A bill for comcast on the 5th of the month for $100
+- name: comcast
+  when: 5
+  amount: 100
+# Payday on the 1st and 15th, for $1000
+- name: payday
+  type: income
+  when:
+  - 1
+  - 15
+  amount: 1000
+# A bill for $200/mo on the 5th of each month starting in January 2016
+- name: Annoying bill
+  when: 5
+  starts: 2016/01/01
+# A bill that will stop being withdrawn after November 30th, 2015
+- name: Another bill
+  when: 10
+  ends: 2015/11/30
+---
+
+Schema reference:
+* name: any string to refer to this item in the output
+* type: set to 'income' to invert amount (gain rather than loss)
+* when: day(s) of month where item takes effect. Takes an integer or array of
+    integers. Items that fall past the end of the month (e.g. 30th of February)
+    will be executed on the last real day of that month
+* amount: dollar amount for this item
+* starts: optional start date as YYYY/MM/DD, item will only be processed after
+    this date
+* ends: optional end date as YYYY/MM/DD, item will only be processed until this
+    date
+
+=end
+
 require 'yaml'
 require 'date'
 require 'cymbal'

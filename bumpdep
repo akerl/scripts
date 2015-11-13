@@ -8,56 +8,61 @@ def help
   exit 1
 end
 
-def update_repo(gemspec, gem, version)
-  Dir.chdir(File.dirname(gemspec)) do
-    system('git', 'add', File.basename(gemspec)) || fail('Failed to add file')
-    message = "Updated version of #{gem} to #{version}"
-    system('git', 'commit', '-m', message) || fail('Failed to commit change')
-    system('git', 'push', 'origin', 'master') || fail('Failed to push change')
-  end
+def update_repo!(gem, version)
+  message = "Updated version of #{gem} to #{version}"
+  system('git', 'commit', '-am', message) || fail('Failed to commit change')
+  system('git', 'push', 'origin', 'master') || fail('Failed to push change')
 rescue
   puts "Failed to update #{gem}"
 end
 
-def update_dep(gemspec, current, gem, version, old_version, noconfirm)
-  unless noconfirm
-    print "Want to update #{gem} from #{old_version} to #{version} " \
-      "in #{File.basename(gemspec, '.gemspec')}? [Y/n] "
-    return if gets.chomp.downcase == 'n'
-  end
-  current.map! do |x|
-    x.sub(/(?<=_dependency '#{gem}', '~> )[\w.]+(?=')/, version)
-  end
-  File.open(gemspec, 'w') { |fh| fh.write(current.join) }
-  update_repo(gemspec, gem, version)
+def update_bundle!
+  return unless system('git cat-file -e HEAD:Gemfile.lock &>/dev/null')
+  system('bundle update')
 end
 
-def try_update(gemspec, current, gem, version, old_version, noconfirm)
-  return if old_version == version
-  clean = Dir.chdir(File.dirname(gemspec)) do
-    `git status`.match(/working directory clean/)
+def replace_version!(file, contents, gem, version)
+  puts "Updating #{Dir.pwd}"
+  contents.map! do |x|
+    x.sub(/(?= '#{gem}', '~> )[\w.]+(?=')$/, version)
   end
-  if clean
-    update_dep(gemspec, current, gem, version, old_version, noconfirm)
-  else
-    puts "Git repo for #{gem} is not clean"
+  File.open(file, 'w') { |fh| fh.write(contents.join) }
+  true
+end
+
+def confirm?(gem, old_version, file)
+  print "Want to update #{gem}'s #{file} from #{old_version}? [Y/n] "
+  gets.chomp.downcase != 'n'
+end
+
+def update_file!(file, gem, version, noconfirm)
+  contents = File.readlines(file)
+  res = contents.find { |x| x.match(/ '#{gem}', '~> ([\w.]+)'$/) }
+  return if res[1] == version
+  ok = confirm?(gem, res[1], file) unless noconfirm
+  replace_version!(file, contents, gem, version) if ok
+end
+
+def repo_clean?
+  res = `git status 2>&1`.match(/working directory clean/)
+  puts "Git repo not clean: #{Dir.pwd}" unless res
+  return res
+end
+
+def update_repo!(repo, gem, version, noconfirm)
+  Dir.chdir(repo) do
+    next unless repo_clean?
+    a = update_file! 'Gemfile', gem, version, noconfirm
+    b = update_file! Dir.glob('*.gemspec').first, gem, version, noconfirm
+    next unless a || b
+    update_bundle!
+    update_repo! gem, version
   end
 end
 
-def parse_gemspecs(gems, gem, version, noconfirm)
-  gems.each do |gemspec|
-    current = File.readlines(gemspec)
-    if current.find { |x| x.match(/_dependency '#{gem}', '~> ([\w.]+)'/) }
-      try_update(gemspec, current, gem, version, $1, noconfirm)
-    else
-      puts "No match in #{File.basename(gemspec, '.gemspec')}"
-    end
-  end
-end
-
-def find_files(pattern)
-  Dir.glob("**/#{pattern}").select do |x|
-    Dir.exist?(File.dirname(x) + '/.git')
+def all_repos(pattern)
+  Dir.glob("**/#{pattern}").map { |x| File.dirname(x) }.select do |x|
+    Dir.exist? File.join(x, '.git')
   end
 end
 
@@ -66,5 +71,4 @@ version = ARGV.shift || help
 noconfirm = ARGV.shift || nil
 help unless gem.match(/^\S+$/) && version.match(/^[\w.]+$/)
 
-parse_gemspecs find_files('*.gemspec'), gem, version, noconfirm
-
+all_repos.each { |x| update_repo! x, gem, version, noconfirm }

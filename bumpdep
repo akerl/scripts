@@ -12,17 +12,21 @@ def repo_name
   File.basename(Dir.pwd)
 end
 
+def run(cmd, fail_msg)
+  system("#{cmd} 2>&1 >/dev/null") || fail(fail_msg)
+end
+
 def git_commit!(gem, version)
   message = "Updated version of #{gem} to #{version}"
-  system('git', 'commit', '-am', message) || fail('Failed to commit change')
-  system('git', 'push', 'origin', 'master') || fail('Failed to push change')
+  run "git commit -am '#{message}'", 'Failed to commit change'
+  run 'git push origin master', 'Failed to push change'
 rescue
   puts "Failed to update #{repo_name}"
 end
 
 def update_bundle!
   return unless system('git cat-file -e HEAD:Gemfile.lock &>/dev/null')
-  system('bundle update')
+  run 'bundle update', 'Failed to update bundle'
 end
 
 def replace_version!(file, contents, gem, version)

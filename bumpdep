@@ -8,12 +8,16 @@ def help
   exit 1
 end
 
+def repo_name
+  File.basename(Dir.pwd)
+end
+
 def update_repo!(gem, version)
   message = "Updated version of #{gem} to #{version}"
   system('git', 'commit', '-am', message) || fail('Failed to commit change')
   system('git', 'push', 'origin', 'master') || fail('Failed to push change')
 rescue
-  puts "Failed to update #{gem}"
+  puts "Failed to update #{repo_name}"
 end
 
 def update_bundle!
@@ -22,30 +26,32 @@ def update_bundle!
 end
 
 def replace_version!(file, contents, gem, version)
-  puts "Updating #{Dir.pwd}"
+  puts "Updating #{repo_name} to #{version}"
   contents.map! do |x|
     x.sub(/(?= '#{gem}', '~> )[\w.]+(?=')$/, version)
   end
+  p contents.join
   File.open(file, 'w') { |fh| fh.write(contents.join) }
   true
 end
 
 def confirm?(gem, old_version, file)
-  print "Want to update #{gem}'s #{file} from #{old_version}? [Y/n] "
+  print "Want to update #{repo_name}'s #{file} from #{old_version}? [Y/n] "
   gets.chomp.downcase != 'n'
 end
 
 def update_file!(file, gem, version, noconfirm)
+  return unless file and File.exist? file
   contents = File.readlines(file)
   res = contents.find { |x| x.match(/ '#{gem}', '~> ([\w.]+)'$/) }
-  return if res[1] == version
-  ok = confirm?(gem, res[1], file) unless noconfirm
+  return unless res && Regexp.last_match(1) != version
+  ok = confirm?(gem, Regexp.last_match(1), file) unless noconfirm
   replace_version!(file, contents, gem, version) if ok
 end
 
 def repo_clean?
   res = `git status 2>&1`.match(/working directory clean/)
-  puts "Git repo not clean: #{Dir.pwd}" unless res
+  puts "Git repo not clean: #{repo_name}" unless res
   return res
 end
 
@@ -60,8 +66,8 @@ def update_repo!(repo, gem, version, noconfirm)
   end
 end
 
-def all_repos(pattern)
-  Dir.glob("**/#{pattern}").map { |x| File.dirname(x) }.select do |x|
+def all_repos
+  Dir.glob("**/Gemfile").map { |x| File.dirname(x) }.select do |x|
     Dir.exist? File.join(x, '.git')
   end
 end

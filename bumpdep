@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'io/console'
-
 def help
   puts 'Usage: bumpdep updated-gem-name new.version [noconfirm]'
   puts 'Example: bumpdep timecop 0.22.100'
@@ -16,8 +14,8 @@ def run(cmd, fail_msg)
   system("#{cmd} >/dev/null 2>&1") || fail(fail_msg)
 end
 
-def git_commit!(gem, version)
-  message = "Updated version of #{gem} to #{version}"
+def git_commit!
+  message = "Updated version of #{GEM} to #{NEW_VERSION}"
   run "git commit -am '#{message}'", 'Failed to commit change'
   run 'git push origin master', 'Failed to push change'
 rescue
@@ -29,55 +27,59 @@ def update_bundle!
   run 'bundle update', 'Failed to update bundle'
 end
 
-def replace_version!(file, contents, gem, version)
-  puts "Updating #{repo_name} to #{version}"
-  contents.map! do |x|
-    x.sub(/(?<= '#{gem}', '~> )[\w.]+(?=')/, version)
-  end
+def replace_version!(file, contents)
+  puts "Updating #{repo_name} to #{NEW_VERSION}"
+  contents.map! { |x| x.sub(REGEX, NEW_VERSION) }
   File.open(file, 'w') { |fh| fh.write(contents.join) }
   true
 end
 
-def confirm?(gem, old_version, file)
+def confirm?(file, old_version)
   print "Want to update #{repo_name}'s #{file} from #{old_version}? [Y/n] "
   gets.chomp.downcase != 'n'
 end
 
-def update_file!(file, gem, version, noconfirm)
-  return unless file and File.exist? file
+def load_file(file)
+  return unless file && File.exist?(file)
   contents = File.readlines(file)
-  res = contents.find { |x| x.match(/ '#{gem}', '~> ([\w.]+)'$/) }
-  return unless res && Regexp.last_match(1) != version
-  ok = noconfirm || confirm?(gem, Regexp.last_match(1), file)
-  replace_version!(file, contents, gem, version) if ok
+  contents.find { |x| x.match(REGEX) }
+  old_version = Regexp.last_match(0)
+  [contents, old_version]
+end
+
+def update_file!(file)
+  contents, old_version = load_file(file)
+  return unless old_version && old_version != NEW_VERSION
+  ok = NOCONFIRM || confirm?(file, old_version)
+  replace_version!(file, contents) if ok
 end
 
 def repo_clean?
   res = `git status 2>&1`.match(/working directory clean/)
   puts "Git repo not clean: #{repo_name}" unless res
-  return res
+  res
 end
 
-def update_repo!(repo, gem, version, noconfirm)
+def update_repo!(repo)
   Dir.chdir(repo) do
     next unless repo_clean?
-    a = update_file! 'Gemfile', gem, version, noconfirm
-    b = update_file! Dir.glob('*.gemspec').first, gem, version, noconfirm
-    next unless a || b
+    res = ['Gemfile', "#{repo_name}.gemspec"].map { |x| update_file! x }
+    next unless res.any?
     update_bundle!
-    git_commit! gem, version
+    git_commit!
   end
 end
 
 def all_repos
-  Dir.glob("**/Gemfile").map { |x| File.dirname(x) }.select do |x|
+  Dir.glob('**/Gemfile').map { |x| File.dirname(x) }.select do |x|
     Dir.exist? File.join(x, '.git')
   end
 end
 
-gem = ARGV.shift || help
-version = ARGV.shift || help
-noconfirm = ARGV.shift || nil
-help unless gem.match(/^\S+$/) && version.match(/^[\w.]+$/)
+GEM = ARGV.shift || help
+REGEX = /(?<= '#{GEM}', '~> )[\w.]+(?=')/
+NEW_VERSION = ARGV.shift || help
+NOCONFIRM = ARGV.shift || nil
+help unless GEM.match(/^\S+$/) && NEW_VERSION.match(/^[\w.]+$/)
 
-all_repos.each { |x| update_repo! x, gem, version, noconfirm }
+all_repos.each { |x| update_repo! x }

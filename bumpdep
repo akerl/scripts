@@ -13,7 +13,7 @@ def repo_name
 end
 
 def run(cmd, fail_msg)
-  system("#{cmd} 2>&1 >/dev/null") || fail(fail_msg)
+  system("#{cmd} >/dev/null 2>&1") || fail(fail_msg)
 end
 
 def git_commit!(gem, version)

@@ -48,7 +48,7 @@ def update_file!(file, gem, version, noconfirm)
   contents = File.readlines(file)
   res = contents.find { |x| x.match(/ '#{gem}', '~> ([\w.]+)'$/) }
   return unless res && Regexp.last_match(1) != version
-  ok = confirm?(gem, Regexp.last_match(1), file) unless noconfirm
+  ok = noconfirm || confirm?(gem, Regexp.last_match(1), file)
   replace_version!(file, contents, gem, version) if ok
 end
 

@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-[[ -z "$1" ]] && echo "Please supply a repo" && exit 1
-
-cd "$1"
-git pull origin master
-

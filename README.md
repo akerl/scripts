@@ -83,10 +83,6 @@ Doesn't work, was intended to clean up local songs I'd synced to iTunes Match
 
 Pulls random quotes from [my quote lists](https://github.com/akerl/quotes)
 
-### repo_pull
-
-Quick bash script to git pull on a repo. I use it for having launchd pull repo updates.
-
 ### repo_sync
 
 Pulls updates from origin/master for any git repos inside a directory. If no directory is given, uses the current directory.

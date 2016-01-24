@@ -20,5 +20,5 @@ auth = Octoauth.new(
 )
 client = Octokit::Client.new access_token: auth.token, auto_paginate: true
 
-client.create_issue(repo, title, body)
-
+issue = client.create_issue(repo, title, body)
+puts issue[:html_url]

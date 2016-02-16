@@ -2,11 +2,47 @@
 
 require 'octoauth'
 require 'octokit'
+require 'net/http'
+require 'uri'
+
+CACHE_FILE = File.expand_path(ENV['ISSUES_CACHE_FILE'] || '~/.issues_cache')
+
+def short_url_request(url)
+  request = Net::HTTP::Post.new('/')
+  request.content_type = 'application/x-www-form-urlencoded'
+  query = { url: url }
+  request.body = URI.encode_www_form(query)
+  request
+end
+
+def short_url(url)
+  Net::HTTP.start('git.io', 443, use_ssl: true) do |http|
+    response = http.request(short_url_request(url))
+    return response['Location'] if response['Location']
+    raise(response.body)
+  end
+end
+
+def cached_urls
+  @cached_urls ||= {} unless File.exist?(CACHE_FILE)
+  @cached_urls ||= File.read(CACHE_FILE).split("\n").map(&:split).to_h
+end
+
+def cached_url(url)
+  cached_urls[url]
+end
+
+def shorten(url)
+  return cached_url(url) if cached_url(url)
+  new_url = short_url(url)
+  File.open(CACHE_FILE, 'a') { |fh| fh << "#{url} #{new_url}\n" }
+  new_url
+end
 
 def repo
   remote = `git remote get-url origin`.chomp
-  fail('origin is not a github repo') unless remote.match('github.com')
-  remote.gsub(/.*github\.com[:\/]/, '').gsub('.git', '')
+  raise('origin is not a github repo') unless remote =~ /github\.com/
+  remote.gsub(%r{.*github\.com[:\/]}, '').gsub('.git', '')
 end
 
 def token
@@ -14,7 +50,7 @@ def token
     note: 'issues',
     file: :default,
     autosave: true,
-    scopes: ['repo', 'public_repo']
+    scopes: %w(repo)
   ).token
 end
 
@@ -28,7 +64,9 @@ def create_issue(title, body)
 end
 
 def list_issues
-  client.issues(repo).each { |x| puts "#{x.html_url} #{x.title}" }
+  client.issues(repo).each do |x|
+    puts "#{x.number} #{shorten(x.html_url)} #{x.title}"
+  end
 end
 
 title = ARGV.shift

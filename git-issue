@@ -3,22 +3,39 @@
 require 'octoauth'
 require 'octokit'
 
+def repo
+  remote = `git remote get-url origin`.chomp
+  fail('origin is not a github repo') unless remote.match('github.com')
+  remote.gsub(/.*github\.com[:\/]/, '').gsub('.git', '')
+end
+
+def token
+  Octoauth.new(
+    note: 'issues',
+    file: :default,
+    autosave: true,
+    scopes: ['repo', 'public_repo']
+  ).token
+end
+
+def client
+  Octokit::Client.new access_token: token, auto_paginate: true
+end
+
+def create_issue(title, body)
+  issue = client.create_issue(repo, title, body)
+  puts issue[:html_url]
+end
+
+def list_issues
+  client.issues(repo).each { |x| puts "#{x.url} #{x.title}" }
+end
+
 title = ARGV.shift
 body = ARGV.shift
-fail('no title provided') unless title
 
-remote_info = `git remote show origin -n`.lines
-remote = remote_info.find { |x| x.match('Fetch URL') }.split.last
-fail('origin is not a github repo') unless remote.match('github.com')
-repo = remote.gsub(/.*github\.com[:\/]/, '').gsub('.git', '')
-
-auth = Octoauth.new(
-  note: 'issues',
-  file: :default,
-  autosave: true,
-  scopes: ['repo', 'public_repo']
-)
-client = Octokit::Client.new access_token: auth.token, auto_paginate: true
-
-issue = client.create_issue(repo, title, body)
-puts issue[:html_url]
+if title
+  create_issue(title, body)
+else
+  list_issues
+end

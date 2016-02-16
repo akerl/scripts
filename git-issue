@@ -28,7 +28,7 @@ def create_issue(title, body)
 end
 
 def list_issues
-  client.issues(repo).each { |x| puts "#{x.url} #{x.title}" }
+  client.issues(repo).each { |x| puts "#{x.html_url} #{x.title}" }
 end
 
 title = ARGV.shift

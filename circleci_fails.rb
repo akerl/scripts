@@ -2,18 +2,14 @@
 
 require 'open-uri'
 require 'json'
+require 'keylime'
 
-def request_token
-  `stty -echo`
-  print 'Please enter CircleCI token: '
-  gets
-ensure
-  `stty echo`
-  puts
-end
+ENDPOINT = ENV['CIRCLECI_ENDPOINT'] || 'https://circleci.com'
 
-token = ENV['CIRCLECI_TOKEN'] || request_token
-raw = open("https://circleci.com/api/v1/projects?circle-token=#{token}")
+credential = Keylime.new(server: ENDPOINT)
+token = credential.get!("CircleCI Token (#{ENDPOINT}/account/api)").password
+
+raw = open("#{ENDPOINT}/api/v1/projects?circle-token=#{token}")
 json = JSON.load(raw)
 
 repos = json.map do |x|

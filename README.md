@@ -39,6 +39,14 @@ Helper script for maintaining zonefile serials and reloading NSD.
 
 Creates an issue in the current GitHub repo
 
+### git-gem
+
+Opens Gemnasium page for the current repo by parsing README.md for a badge line that matches this regex:
+
+```
+^\[!\[Dependency Status\].*)](https://gemnasium.com/.*)'
+```
+
 ### git-open
 
 Taken from https://github.com/paulirish/git-open/ , this opens the current git repo on github

@@ -63,10 +63,6 @@ Tiny script to take an IP in hex and spit it out as a dotted quad.
 
 Takes all the \*.pub files in a directory and concatenates them into a file. I use it to load my keys repo into ~/.ssh/authorized\_keys.
 
-### ldgproject
-
-Projection tool for taking a YAML file and using [ballista](https://github.com/akerl/ballista) to create future [ledger-cli](http://www.ledger-cli.org/) journals.
-
 ### link_check
 
 Scans $PATH for binaries and checks if they're linked against any libraries that aren't available. Output is formatted at "$ARCH_PACKAGE $BINARY $LIBRARY1 ... $LIBRARYN"

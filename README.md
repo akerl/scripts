@@ -7,6 +7,10 @@ Personal scripts and such. Mostly written by me, but a couple borrowed from the 
 
 ## Contents
 
+### allprop
+
+Runs [prospectus](https://github.com/akerl/prospectus) against lots of repos
+
 ### auth_mail
 
 Used by PAM to send an email with information when an authentication occurs

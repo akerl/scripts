@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+
+require 'parallel'
+require 'mercenary'
+
+CACHE_FILE = File.expand_path('~/.allprop')
+
+def all_files
+  Dir.glob '**/.prospectus*'
+end
+
+def load_cache(use_cache)
+  return nil unless use_cache && File.exist?(CACHE_FILE)
+  File.read(CACHE_FILE).split "\n"
+end
+
+def all_dirs(use_cache)
+  dir = load_cache(use_cache)
+  dir ||= all_files.map { |x| File.dirname(x) }
+end
+
+def worker(dir)
+  system("prospectus -d #{dir}")
+end
+
+def cache_failures(failures)
+  File.open(CACHE_FILE, 'w') { |fh| fh << failures.join("\n") }
+end
+
+def runner(use_cache = true)
+  results = Parallel.map(all_dirs(use_cache)) { |x| [x, worker(x)] }
+  failures = results.group_by(&:last)[false].map(&:first)
+  cache_failures(failures)
+end
+
+Mercenary.program(:allprop) do |p|
+  p.description 'Run prospectus against all subdirs'
+  p.syntax 'allprop [options]'
+
+  p.option :cache, '-c', '--cache', 'Use cache to check only fails from last time'
+
+  p.action do |_, options|
+    runner(options[:cache])
+  end
+end

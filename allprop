@@ -3,35 +3,47 @@
 require 'parallel'
 require 'mercenary'
 
-CACHE_FILE = File.expand_path('~/.allprop')
+class Runner
+  def initialize(params)
+    @options = params
+    @options[:dir] ||= File.expand_path('~/src')
+    @options[:maxdepth] ||= 2
+  end
 
-def all_files
-  root = File.expand_path('~/src')
-  Dir.glob("#{root}/*/*/.prospectus*'")
-end
+  def run!
+    results = Parallel.map(all_dirs) { |x| [x, worker(x)] }
+    failures = results.group_by(&:last)[false].map(&:first)
+    cache_failures(failures)
+  end
 
-def load_cache(use_cache)
-  return nil unless use_cache && File.exist?(CACHE_FILE)
-  File.read(CACHE_FILE).split "\n"
-end
+  private
 
-def all_dirs(use_cache)
-  dir = load_cache(use_cache)
-  dir ||= all_files.map { |x| File.dirname(x) }
-end
+  def cache_file
+    @cache_file ||= File.join(@options[:dir], '.allprop')
+  end
 
-def worker(dir)
-  system("prospectus -d #{dir}")
-end
+  def all_files
+    @all_files ||= Dir.glob(
+      @options[:dir] + '/*' * @options[:maxdepth] + '/.prospectus*'
+    )
+  end
 
-def cache_failures(failures)
-  File.open(CACHE_FILE, 'w') { |fh| fh << failures.join("\n") }
-end
+  def load_cache
+    return nil unless @options[:use_cache] && File.exist?(cache_file)
+    File.read(cache_file).split "\n"
+  end
 
-def runner(use_cache = true)
-  results = Parallel.map(all_dirs(use_cache)) { |x| [x, worker(x)] }
-  failures = results.group_by(&:last)[false].map(&:first)
-  cache_failures(failures)
+  def all_dirs
+    @all_dirs ||= load_cache || all_files.map { |x| File.dirname(x) }
+  end
+
+  def worker(dir)
+    system("prospectus -d #{dir}")
+  end
+
+  def cache_failures(failures)
+    File.open(cache_file, 'w') { |fh| fh << failures.join("\n") }
+  end
 end
 
 Mercenary.program(:allprop) do |p|
@@ -39,8 +51,10 @@ Mercenary.program(:allprop) do |p|
   p.syntax 'allprop [options]'
 
   p.option :cache, '-c', '--cache', 'Use cache to check only fails from last time'
+  p.option :dir, '-d DIR', '--dir', 'Root dir (defaults to ~/src)'
+  p.option :maxdepth, '-m DEPTH', '--maxdepth', 'Max depth to search'
 
   p.action do |_, options|
-    runner(options[:cache])
+    Runner.new(options).run!
   end
 end

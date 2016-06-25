@@ -6,7 +6,8 @@ require 'mercenary'
 CACHE_FILE = File.expand_path('~/.allprop')
 
 def all_files
-  Dir.glob '**/.prospectus*'
+  root = File.expandpath('~/src')
+  Dir.glob("#{root}/*/*/.prospectus*'")
 end
 
 def load_cache(use_cache)

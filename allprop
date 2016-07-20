@@ -29,7 +29,7 @@ class Runner
   end
 
   def load_cache
-    return nil unless @options[:use_cache] && File.exist?(cache_file)
+    return nil unless @options[:cache] && File.exist?(cache_file)
     File.read(cache_file).split "\n"
   end
 

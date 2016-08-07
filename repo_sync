@@ -6,15 +6,9 @@ else
     action="$1"
 fi
 
-if [ -z "$2" ] ; then
-    repoPath="$(pwd)"
-else
-    repoPath="$2"
-fi
-cd "$repoPath"
-
-for gitDir in $(find . -type d -name '.git') ; do
-    repo="$(dirname $gitDir)"
+function needful () {
+    local action="$1"
+    local repo="$(dirname $2)"
     (
         cd $repo
         current="$(git branch | awk '/^\*/ { print $2}')"
@@ -24,5 +18,7 @@ for gitDir in $(find . -type d -name '.git') ; do
             || echo "Error! Failed to pull $repo"
         [ "$current" == "master" ] || git checkout $currentBranch &> /dev/null
     )
-done
+}
 
+export -f needful
+find . -type d -name '.git' | xargs -n1 -P10 -I{} bash -c "needful $action {}"

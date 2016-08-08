@@ -48,7 +48,7 @@ def fetch_history(user, day, results = [])
   fetch_history(user, day - 1, results)
 end
 
-USER = ARGV.first
+USER = ARGV.first || fail("usage: #{$0} USER")
 
 CURLER = Curl::Easy.new do |curl|
   curl.headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4"

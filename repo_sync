@@ -16,7 +16,7 @@ function needful () {
         git fetch --tags &> /dev/null
         git $action origin master &> /dev/null \
             || echo "Error! Failed to pull $repo"
-        [ "$current" == "master" ] || git checkout $currentBranch &> /dev/null
+        [ "$current" == "master" ] || git checkout $current &> /dev/null
     )
 }
 export -f needful

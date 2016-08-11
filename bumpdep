@@ -55,7 +55,7 @@ def update_file!(file)
 end
 
 def repo_clean?
-  res = `git status 2>&1`.match(/working directory clean/)
+  res = `git status --porcelain 2>&1`.size.zero?
   puts "Git repo not clean: #{repo_name}" unless res
   res
 end

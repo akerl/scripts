@@ -17,29 +17,26 @@ def api_url(path)
   "#{ENDPOINT}/api/v1.1/#{path}?circle-token=#{token}"
 end
 
-def update(project, key, value)
-  url = api_url("project/github/#{project}/envvar")
-  data = JSON.dump({ 'name' => key, 'value' => value })
-  req = Curl.post(url, data) do |http|
-    http.headers['Content-Type'] = 'application/json'
-  end
+def follow(project)
+  url = api_url("project/github/#{project}/follow")
+  req = Curl.post(url)
   return if req.response_code < 202
   raise "#{req.response_code}: #{req.url}"
 end
 
-Mercenary.program(:circleci_envvar) do |p|
-  p.description 'Update environment settings for CircleCI builds'
-  p.syntax 'circleci_envvar [options] PROJECT KEY VALUE'
+Mercenary.program(:circleci_follow) do |p|
+  p.description 'Follow new circle project'
+  p.syntax 'circleci_follow [options] PROJECT'
 
   p.option :noop, '-n', '--noop', 'Dry run, print change'
 
   p.action do |_, options|
-    project, key, value = ARGV.shift 3
-    unless value
+    project = ARGV.shift
+    unless project
       puts p
       exit 1
     end
-    puts "Updating #{project} with #{key} = #{value}"
-    update(project, key, value) unless options[:noop]
+    puts "Following #{project}"
+    follow(project) unless options[:noop]
   end
 end

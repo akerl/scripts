@@ -42,6 +42,7 @@ end
 
 def print_report!
   list = failing_projects.to_a.sort_by(&:first)
+  list.map! { |project, state| ['https://circleci.com/gh/' + project, state] }
   url_width = list.map(&:first).map(&:size).max
   list.each { |url, state| puts "#{url.ljust(url_width)} #{state}" }
 end

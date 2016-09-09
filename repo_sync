@@ -4,14 +4,15 @@ function needful () {
     local repo="$(dirname $1)"
     (
         cd $repo
-        current="$(git branch | awk '/^\*/ { print $2}')"
-        [ "$current" == "master" ] || git checkout master &> /dev/null
+        local current="$(git rev-parse --abbrev-ref HEAD)"
+        local desired="$(git config reposync.branch || echo "master")" 
+        [ "$current" == "$desired" ] || git checkout "$desired" &> /dev/null
         git fetch --tags &> /dev/null
-        git pull origin master &> /dev/null \
+        git pull origin "$desired" &> /dev/null \
             || echo "Error! Failed to pull $repo"
         git submodule update --init &> /dev/null \
             || echo "Error! Failed to update submodules for $repo"
-        [ "$current" == "master" ] || git checkout $current &> /dev/null
+        [ "$current" == "$desired" ] || git checkout "$current" &> /dev/null
     )
 }
 export -f needful

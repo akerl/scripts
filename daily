@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -xe
+
+for x in $(find -L ~/.daily -type f) ; do
+    source "$x"
+done

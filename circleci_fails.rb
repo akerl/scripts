@@ -18,7 +18,7 @@ def api_url(path)
 end
 
 def api_req(path)
-  JSON.load(open(api_url(path)))
+  JSON.parse(open(api_url(path)))
 end
 
 def all_projects

@@ -1,12 +1,3 @@
 #!/usr/bin/env bash
 
-if [ -z "$1" ] ; then
-	port="9999"
-else
-	port="$1"
-fi
-tunnels=$(ps aux | awk '/[s]sh -fND/ {print $2}')
-for tunnel in $tunnels; do
-	kill -15 $tunnel
-done
-
+ps aux | awk '/[s]sh -fND/ {print $2}' | xargs kill -15

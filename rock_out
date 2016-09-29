@@ -15,14 +15,14 @@ fi
 /usr/local/bin/connection_test $source_host || exit
 #ps aux | grep '[i]Tunes ' >/dev/null && exit
 
-mkdir -p $tmp_path
+mkdir -p "$tmp_path"
 
 if [[ ! -d "$target_path" ]] ; then
     echo "Target path not found: $target_path"
     exit
 fi
 
-scp -l 4096 $source_host:$source_path/* "$tmp_path" && mv $tmp_path/* "$target_path/"
+scp -l 4096 "$source_host:$source_path/*" "$tmp_path" && mv "$tmp_path/*" "$target_path/"
 
 if [[ $? -eq 0 ]] ; then
     echo "Removing source files"

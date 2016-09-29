@@ -3,9 +3,11 @@
 require 'open-uri'
 require 'nokogiri'
 
-URL = 'http://xenbits.xen.org/xsa/'
-XPATH = '/html/body/table/tr'
+URL = 'http://xenbits.xen.org/xsa/'.freeze
+XPATH = '/html/body/table/tr'.freeze
 
+##
+# Vuln object
 class XSA
   def initialize(raw)
     @data = raw.xpath('td').map { |y| y.children.map(&:text) }

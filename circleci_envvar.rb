@@ -19,7 +19,7 @@ end
 
 def update(project, key, value)
   url = api_url("project/github/#{project}/envvar")
-  data = JSON.dump({ 'name' => key, 'value' => value })
+  data = JSON.dump('name' => key, 'value' => value)
   req = Curl.post(url, data) do |http|
     http.headers['Content-Type'] = 'application/json'
   end

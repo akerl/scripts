@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-hex="$(echo $1 | tr -d '~')"
+hex="$(echo "$1" | tr -d '~')"
 
 if [ "${#hex}" != "8" ] ; then
-	exit
+    exit
 fi
 ip=""
 for ((a=0; a <= 6 ; a=a+2)) ; do
-	let tmp=0x${hex:$a:2}
-	ip+=$tmp
-	ip+="."
+    let tmp="0x${hex:$a:2}"
+    ip+="$tmp"
+    ip+="."
 done
 reverse="$(dig +short -x ${ip%.})"
 
-echo ${ip%.} $reverse
+echo "${ip%.}" "$reverse"
 

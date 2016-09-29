@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-unless File.exists?('README.md') && File.read('README.md').match(/^Quotes/)
+unless File.exist?('README.md') && File.read('README.md').match(/^Quotes/)
   puts 'You should run this from the quotes directory'
   exit
 end
@@ -15,4 +15,3 @@ quotes.each do |x|
   puts x
   gets
 end
-

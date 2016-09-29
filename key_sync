@@ -14,10 +14,10 @@ fi
 
 if [ -z "$3" ] ; then
     echo -e "Updating '$DESTFILE' from keys in '$SOURCEDIR'\nPress enter to confirm"
-    read
+    read -r
 fi
 
-[ -f $DESTFILE ] && mv $DESTFILE $DESTFILE.save
+[ -f "$DESTFILE" ] && mv "$DESTFILE" "$DESTFILE.save"
 
 TMPFILE="$(mktemp /tmp/keys.XXXXXXXXX)"
 if [ -z "$TMPFILE" ] ; then
@@ -25,21 +25,20 @@ if [ -z "$TMPFILE" ] ; then
     exit 1
 fi
 
-for file in $(find -L $SOURCEDIR -type f); do
-    ssh-keygen -l -f $file &>/dev/null
+for file in $(find -L "$SOURCEDIR" -type f); do
+    ssh-keygen -l -f "$file" &>/dev/null
     if [ "$?" != "0" ] ; then
         echo "$file does not appear to be a public key"
         exit 1
     fi
-    cat ${file} >> $TMPFILE
+    cat "$file" >> "$TMPFILE"
 done
-echo -e "\n" >> $TMPFILE
+echo -e "\n" >> "$TMPFILE"
 
 if [ -z "$3" ] ; then
-    cat $TMPFILE
+    cat "$TMPFILE"
     echo -e "Press enter to confirm new keys"
-    read
+    read -r
 fi
 
-mv $TMPFILE $DESTFILE
-
+mv "$TMPFILE" "$DESTFILE"

@@ -49,7 +49,7 @@ fi
 
 remote_url="remote.${remote}.url"
 
-giturl=$(git config --get $remote_url)
+giturl="$(git config --get "$remote_url")"
 if [ -z "$giturl" ]
 then
     echo "$remote_url not set."
@@ -59,11 +59,11 @@ fi
 
 # URL normalization
 # Github support
-if grep -q github <<<$giturl; then
+if grep -q github <<<"$giturl"; then
     giturl=${giturl/git\@github\.com\:/https://github.com/}
     providerUrlDifference=tree
 # bitbucket support
-elif grep -q bitbucket <<<$giturl; then
+elif grep -q bitbucket <<<"$giturl"; then
     giturl=${giturl/git\@bitbucket\.org\:/https://bitbucket.org/}
     providerUrlDifference=branch
 fi
@@ -73,7 +73,7 @@ giturl=${giturl%\.git}
 # get current branch
 if [ -z "$2" ]
 then
-    branch=`git symbolic-ref -q --short HEAD`
+    branch="$(git symbolic-ref -q --short HEAD)"
 else
     branch="$2"
 fi
@@ -87,7 +87,7 @@ fi
 giturl=${giturl/tree\/master/}
 
 # get current open browser command
-if [ $(uname -s) == "Darwin" ]
+if [ "$(uname -s)" == "Darwin" ]
 then
   open=open
 else
@@ -95,6 +95,6 @@ else
 fi
 
 # open it in a browser
-$open $giturl &> /dev/null
+$open "$giturl" &> /dev/null
 exit 0
 

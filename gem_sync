@@ -2,10 +2,10 @@
 
 OLD_VERSION = ARGV.first
 
-fail("Usage: #{__FILE__} <old-version>") unless OLD_VERSION
+raise("Usage: #{__FILE__} <old-version>") unless OLD_VERSION
 
 unless `rbenv versions --bare`.split.include? OLD_VERSION
-  fail "Ruby version not found: #{OLD_VERSION}"
+  raise "Ruby version not found: #{OLD_VERSION}"
 end
 
 cmd = `RBENV_VERSION=#{OLD_VERSION} rbenv exec gem list`

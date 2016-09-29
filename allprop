@@ -3,6 +3,8 @@
 require 'parallel'
 require 'mercenary'
 
+##
+# Runner class to check prospectuses
 class Runner
   def initialize(params)
     @options = params
@@ -50,9 +52,11 @@ Mercenary.program(:allprop) do |p|
   p.description 'Run prospectus against all subdirs'
   p.syntax 'allprop [options]'
 
+  # rubocop:disable Metrics/LineLength
   p.option :cache, '-c', '--cache', 'Use cache to check only fails from last time'
   p.option :dir, '-d DIR', '--dir', 'Root dir (defaults to ~/src)'
   p.option :maxdepth, '-m DEPTH', '--maxdepth', 'Max depth to search'
+  # rubocop:enable Metrics/LineLength
 
   p.action do |_, options|
     Runner.new(options).run!

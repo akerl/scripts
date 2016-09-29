@@ -19,7 +19,7 @@ end
 
 def projects
   raw = Curl::Easy.perform(api_url('projects')).body_str
-  json = JSON.load(raw)
+  json = JSON.parse(raw)
   json.map do |x|
     project = x['username'] + '/' + x['reponame']
     irc_settings = x.select { |k, _| k =~ /^irc_/ }

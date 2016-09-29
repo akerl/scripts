@@ -1,6 +1,6 @@
-#!/usr/bin/env zsh -i
+#!/usr/bin/env zsh
 
-set -xe
+set -xei
 
 for x in $(find -L ~/.daily -type f) ; do
     source "$x"

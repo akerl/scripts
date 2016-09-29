@@ -6,5 +6,5 @@ dependencies:
   - gem install rubocop
 test:
   override:
-  - shellcheck -e SC1071 *
+  - find . -perm +111 -type f ! -path './.git/*' | xargs shellcheck -e SC1071
   - rubocop

@@ -25,14 +25,21 @@ if [ -z "$TMPFILE" ] ; then
     exit 1
 fi
 
-for file in $(find -L "$SOURCEDIR" -type f); do
-    ssh-keygen -l -f "$file" &>/dev/null
+function needful() {
+    local source_file
+    local target_file
+    source_file="$1"
+    target_file="$2"
+    ssh-keygen -l -f "$source_file" &>/dev/null
     if [ "$?" != "0" ] ; then
-        echo "$file does not appear to be a public key"
-        exit 1
+        echo "$source_file does not appear to be a public key"
+        return 1
     fi
-    cat "$file" >> "$TMPFILE"
-done
+    cat "$source_file" >> "$target_file"
+}
+export -f needful
+
+find -L "$SOURCEDIR" -type f -print0 | xargs -0 -n1 -I{} bash -c "needful {} $TMPFILE"
 echo -e "\n" >> "$TMPFILE"
 
 if [ -z "$3" ] ; then

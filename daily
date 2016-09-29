@@ -2,6 +2,7 @@
 
 set -xei
 
+# shellcheck disable=SC2044
 for x in $(find -L ~/.daily -type f) ; do
     source "$x"
 done

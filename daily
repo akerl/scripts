@@ -1,8 +1,3 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
-set -xei
-
-# shellcheck disable=SC2044
-for x in $(find -L ~/.daily -type f) ; do
-    source "$x"
-done
+find -L ~/.daily -type f | xargs -n1 env

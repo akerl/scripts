@@ -6,35 +6,37 @@ Example schema:
 ---
 # A bill for comcast on the 5th of the month for $100
 - name: comcast
-  when: 5
   amount: 100
-# Payday on the 1st and 15th, for $1000
+  when: 5
+# Payday for $1000, every other friday
 - name: payday
-  type: income
-  when:
-  - 1
-  - 15
-  amount: 1000
+  amount: -1000
+  frequency: biweekly
+  when: friday
 # A bill for $200/mo on the 5th of each month starting in January 2016
 - name: Annoying bill
+  amount: 200
   when: 5
   starts: 2016/01/01
 # A bill that will stop being withdrawn after November 30th, 2015
 - name: Another bill
+  amount: 100
   when: 10
-  ends: 2015/11/30
+  stops: 2015/11/30
 ---
 
 Schema reference:
 * name: any string to refer to this item in the output
-* type: set to 'income' to invert amount (gain rather than loss)
-* when: day(s) of month where item takes effect. Takes an integer or array of
-    integers. Items that fall past the end of the month (e.g. 30th of February)
-    will be executed on the last real day of that month
-* amount: dollar amount for this item
+* amount: dollar amount for this item (negative for income)
+* frequency: what cycle the charge recurs on. Supported values:
+  * monthly (default)
+  * biweekly
+* when: Used alongside frequency.
+  * monthly: set to day of month or array of days of month where activity occurs
+  * biweekly: set an example day where the action occurs (must be in the past)
 * starts: optional start date as YYYY/MM/DD, item will only be processed after
     this date
-* ends: optional end date as YYYY/MM/DD, item will only be processed until this
+* stops: optional end date as YYYY/MM/DD, item will only be processed until this
     date
 
 =end
@@ -42,68 +44,143 @@ Schema reference:
 require 'yaml'
 require 'date'
 require 'cymbal'
+require 'mercenary'
 
-##
-# Add .subset to Hash for selecting a subhash
-class Hash
-  def subset(*keys)
-    select { |k| keys.include? k }
+# Base action object
+class Action
+  def initialize(action, start, stop)
+    @name = action[:name]
+    @start = action[:starts] ? Date.parse(action[:starts]) : start
+    @stop = action[:stops] ? Date.parse(action[:stops]) : stop
+    @amount = action[:amount].to_i
+    @when = action[:when]
+  end
+
+  def entry(date)
+    [date, @name, @amount]
   end
 end
 
-def add_action(calendar, action, date)
-  amount = action[:amount]
-  amount *= -1 unless action[:type] == 'income'
-  action = action.subset(:name, :starts, :ends)
-  calendar[date] << action.merge(amount: amount)
-end
-
-def write_line(date, value, change, name)
-  args = [date, value.to_s.rjust(10), change.to_s.rjust(10), name]
-  puts args.join(' | ')
-end
-
-def get_days(date)
-  return [date.day] if date.month == date.next.month
-  date.day.upto(date.day + 3).to_a
-end
-
-def out_of_bounds?(action, day)
-  if action[:starts] && Date.parse(action[:starts]) > day
-    true
-  elsif action[:ends] && Date.parse(action[:ends]) < day
-    true
-  else
-    false
+# Action that recurs monthly
+class Monthly < Action
+  def initialize(*_)
+    super
+    @when = [@when] unless @when.is_a? Array
   end
-end
 
-def parse_day(value, date, calendar)
-  get_days(date).each do |day|
-    calendar[day].each do |action|
-      next if out_of_bounds?(action, date)
-      value += action[:amount]
-      write_line(date, value, action[:amount], action[:name])
+  def log
+    @when.flat_map do |date|
+      pointer = Date.new(Date.today.year, 1, date)
+      get_dates([], pointer, 0)
     end
   end
-  value
+
+  def get_dates(log, pointer, counter)
+    date = pointer >> counter
+    return log if date > @stop
+    return get_dates(log, pointer, counter + 1) if date < @start
+    log << entry(date)
+    get_dates(log, pointer, counter + 1)
+  end
 end
 
-activity_file = ARGV.shift
-value = (ARGV.shift || 0).to_i
-months = (ARGV.shift || 6).to_i
+# Action that recurs every week
+class Weekly < Action
+  def log
+    pointer = Date.parse(@when)
+    get_dates([], pointer)
+  end
 
-ACTIONS = Cymbal.symbolize(File.open(activity_file) { |fh| YAML.load fh })
+  def get_dates(log, pointer)
+    return log if pointer > @stop
+    return get_dates(log, pointer + step) if pointer < @start
+    log << entry(pointer)
+    get_dates(log, pointer + step)
+  end
 
-CALENDAR = Hash.new { |h, k| h[k] = [] }
-
-ACTIONS.each_with_object(CALENDAR) do |action, calendar|
-  dates = action[:when]
-  dates = [dates] unless dates.is_a? Array
-  dates.each { |date| add_action(calendar, action, date) }
+  def step
+    7
+  end
 end
 
-start = Date.today + 1
-finish = start >> months
-write_line(start, value, 0, 'initial value')
-start.upto(finish).each { |date| value = parse_day(value, date, CALENDAR) }
+# Action that reurs every other week
+class Biweekly < Weekly
+  def step
+    14
+  end
+end
+
+# Budget projection class
+class Budget
+  FREQUENCIES = {
+    monthly: Monthly,
+    weekly: Weekly,
+    biweekly: Biweekly
+  }.freeze
+
+  def initialize(params = {})
+    @options = params
+  end
+
+  def project!
+    balance = seed
+    write_line(start_date, 'initial value', seed, seed)
+    log.each do |date, name, amount|
+      balance -= amount
+      write_line(date, name, amount, balance)
+    end
+  end
+
+  private
+
+  def write_line(date, name, change, balance)
+    args = [date, balance.to_s.rjust(10), change.to_s.rjust(10), name]
+    puts args.join(' | ')
+  end
+
+  def log
+    @log ||= actions.reduce([]) do |array, action|
+      frequency = (action[:frequency] || :monthly).to_sym
+      action_class = FREQUENCIES[frequency]
+      raise("Invalid frequency: #{frequency}") unless action_class
+      array + action_class.new(action, start_date, stop_date).log
+    end.sort_by(&:first)
+  end
+
+  def actions
+    @actions ||= Cymbal.symbolize(
+      File.open(activity_file) { |fh| YAML.load fh }
+    )
+  end
+
+  def activity_file
+    @activity_file ||= @options[:activity_file] || 'projections.yml'
+  end
+
+  def start_date
+    @start_date ||= Date.today
+  end
+
+  def stop_date
+    @stop_date ||= start_date >> (@options[:months] || 6).to_i
+  end
+
+  def seed
+    @seed ||= @options[:seed].to_i || 0
+  end
+end
+
+Mercenary.program(:budget) do |p|
+  p.description 'Tool for projecting budgets'
+  p.syntax 'budget [options] path/to/projections.yml'
+
+  # rubocop:disable Metrics/LineLength
+  p.option :months, '-m N', '--months N', 'How many months to project (default 6)'
+  p.option :seed, '-s N', '--seed N', 'Seed value to being operations with'
+  p.option :file, '-f PATH', '--file PATH', 'Path of projections YAML file'
+  # rubocop:enable Metrics/LineLength
+
+  p.action do |_, options|
+    Budget.new(options).project!
+  end
+end

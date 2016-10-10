@@ -22,19 +22,19 @@ def projects
   json = JSON.parse(raw)
   json.map do |x|
     project = x['username'] + '/' + x['reponame']
-    irc_settings = x.select { |k, _| k =~ /^irc_/ }
-    [project, irc_settings]
+    slack_settings = x.select { |k, _| k =~ /^slack_/ }
+    [project, slack_settings]
   end.to_h
 end
 
 def build_settings(options)
   {
-    'irc_server' => options[:server],
-    'irc_channel' => options[:channel],
-    'irc_username' => options[:username],
-    'irc_keyword' => nil,
-    'irc_password' => nil,
-    'irc_notify_prefs' => nil
+    'slack_webhook_url' => options[:webhook],
+    'slack_channel'=>nil,
+    'slack_notify_prefs'=>nil,
+    'slack_subdomain'=>nil,
+    'slack_channel_override'=>nil,
+    'slack_api_token'=>nil
   }
 end
 
@@ -54,15 +54,10 @@ Mercenary.program(:circleci_notifs) do |p|
   p.syntax 'circleci_notifs [options]'
 
   p.option :noop, '-n', '--noop', 'Dry run, print repos that would have changed'
-
-  p.option :server, '-s SERVER', '--server SERVER', 'IRC server (host:port)'
-  p.option :channel, '-c CHANNEL', '--channel CHANNEL', 'Channel'
-  p.option :username, '-u USER', '--username USER', 'User (not nick) for bot'
+  p.option :webhook, '-w HOOK', '--webhook HOOK', 'Webhook URL'
 
   p.action do |_, options|
-    unless options[:server] && options[:channel] && options[:username]
-      raise('Please provide server/channel/username')
-    end
+    raise('Please provide webhook') unless options[:webhook]
     new_settings = build_settings(options)
     to_change = projects.select { |_, v| v != new_settings }.keys
     to_change.each do |project|

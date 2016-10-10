@@ -30,11 +30,11 @@ end
 def build_settings(options)
   {
     'slack_webhook_url' => options[:webhook],
-    'slack_channel'=>nil,
-    'slack_notify_prefs'=>nil,
-    'slack_subdomain'=>nil,
-    'slack_channel_override'=>nil,
-    'slack_api_token'=>nil
+    'slack_channel' => nil,
+    'slack_notify_prefs' => nil,
+    'slack_subdomain' => nil,
+    'slack_channel_override' => nil,
+    'slack_api_token' => nil
   }
 end
 

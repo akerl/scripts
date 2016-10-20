@@ -36,7 +36,7 @@ end
 
 def confirm?(file, old_version)
   print "Want to update #{repo_name}'s #{file} from #{old_version}? [Y/n] "
-  !gets.chomp.downcase('n').zero?
+  !gets.chomp.casecmp('n').zero?
 end
 
 def load_file(file)

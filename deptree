@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+require 'pkgforge'
+require 'graphviz'
+
+ROOT = File.expand_path('~/src')
+PATTERN = File.join(ROOT, '**', '.pkgforge')
+
+GRAPH = GraphViz.new( :G, :type => :digraph ) do |g|
+  links = Dir.glob(PATTERN).each_with_object({}) do |file, hash|
+    pkg = PkgForge.load_from_file(file: file)
+    pkg.deps.keys.each do |target|
+      g.send(pkg.name) << g.send(target)
+    end
+  end
+end
+
+GRAPH.output(png: 'graph.png')

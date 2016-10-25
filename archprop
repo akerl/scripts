@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require 'prospectus'
+require 'parallel'
+require 'open-uri'
+require 'digest'
+
+def check_sha(package, version)
+  realname = package.sub(/-amylum$/, '')
+  url = "https://github.com/amylum/#{realname}/releases/download/#{version}/#{realname}.tar.gz"
+  puts url
+  Digest::SHA512.hexdigest open(url).read
+end
+
+def update_file!(package, version)
+  file = File.join(package, 'PKGBUILD')
+  sha = check_sha(package, version)
+  contents = File.read(file)
+  contents.sub!(/^pkgver=.*$/, "pkgver=#{version.gsub('-', '_')}")
+  contents.sub!(/^sha512sums=\("\w+"\)/, "sha512sums=(\"#{sha}\")")
+  File.open(file, 'w') { |fh| fh << contents }
+end
+
+#Parallel.each(Prospectus.load_from_file().check) do |package|
+Prospectus.load_from_file().check.each do |package|
+  name = package.name.split(':')[2]
+  puts name
+  update_file!(name, package.expected)
+end

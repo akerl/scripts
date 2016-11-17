@@ -5,14 +5,12 @@ require 'graphviz'
 
 ROOT = File.expand_path('~/src')
 PATTERN = File.join(ROOT, '**', '.pkgforge')
-
 GRAPH = GraphViz.new(:G, type: :digraph) do |g|
   Dir.glob(PATTERN).each do |file|
     pkg = PkgForge.load_from_file(file: file)
     pkg.deps.keys.each do |target|
-      g.send(pkg.name) << g.send(target)
+      g.add_edges(pkg.name.to_s, target.to_s)
     end
   end
 end
-
 GRAPH.output(png: 'graph.png')

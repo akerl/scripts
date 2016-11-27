@@ -4,6 +4,8 @@ require 'watir'
 require 'nokogiri'
 require 'mercenary'
 
+##
+# Implement a network object that parses the subnet URL and outputs markdown
 class Network
   def initialize(url, file = nil)
     @url = url
@@ -57,7 +59,7 @@ class Network
 
   def comments
     return @comments if @comments
-    chunks = old_file.chunk_while { |_, b| ! b.start_with? '## ' }
+    chunks = old_file.chunk_while { |_, b| !b.start_with? '## ' }
     @comments = chunks.map { |x| [x.shift.split[1], x.join] }.to_h
   end
 end

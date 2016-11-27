@@ -23,7 +23,7 @@ class Network
   def header
     [
       "# Subnet list\n\n",
-      "This list was generated using [subnet_slicer.rb](#{script_url}).\n\n",
+      "This list was generated using [subnet_slicer](#{script_url}).\n\n",
       "To update it, [click here](#{@url}) to re-open the existing topology, " \
       "modify it, and then re-run subnet_slicer.rb with the new URL\n\n"
     ]

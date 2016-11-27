@@ -30,7 +30,7 @@ class Network
   end
 
   def script_url
-    'https://github.com/akerl/scripts/blob/master/allprop'
+    'https://github.com/akerl/scripts/blob/master/subnet_slicer'
   end
 
   def browser

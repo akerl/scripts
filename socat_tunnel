@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+local usage="socat_tunnel TUNNEL_HOST TARGET_HOST DEST_PORT [LOCAL_PORT]"
+
+local tunnel_host="$1"
+local target_host="$2"
+local dest_port="$3"
+local local_port="$4"
+local ssh_command="$SOCAT_SSH_COMMAND"
+
+if [ -z "$dest_port" ] ; then
+    echo $usage
+    return
+fi
+
+if [ -z "$local_port" ] ; then
+    local_port="$dest_port"
+fi
+
+if [ -z "$ssh_command" ] ; then
+    ssh_command=ssh
+fi
+
+echo "Opening tunnel through $tunnel_host to $target_host:$dest_port on localhost:$local_port"
+socat "TCP4-LISTEN:$local_port,fork" EXEC:"$ssh_command $tunnel_host nc $target_host $dest_port"
+

@@ -3,7 +3,7 @@
 require 'keychain'
 require 'pathname'
 
-encfs = ARGV.first || '/opt/boxen/homebrew/bin/encfs'
+encfs = ARGV.first || 'encfs'
 
 Keychain.generic_passwords.where(service: 'EncFS').all.each do |item|
   source = File.expand_path(item.account)

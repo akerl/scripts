@@ -149,7 +149,7 @@ class Budget
 
   def actions
     @actions ||= Cymbal.symbolize(
-      File.open(activity_file) { |fh| YAML.load fh }
+      File.open(activity_file) { |fh| YAML.safe_load fh }
     )
   end
 

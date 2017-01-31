@@ -30,13 +30,9 @@
 
 
 # are we in a git repo?
-git rev-parse --is-inside-work-tree &>/dev/null
-
-if [[ $? != 0 ]]
-then
-    echo "Not a git repository."
+git rev-parse --is-inside-work-tree &>/dev/null || \
+    echo "Not a git repository." && \
     exit 1
-fi
 
 
 # assume origin if not provided

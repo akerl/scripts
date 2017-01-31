@@ -5,13 +5,11 @@ if [[ -z "$1" ]] ; then
     exit 1
 fi
 
-ssh -oConnectTimeout=2 "$1" true &>/dev/null
-
-if [[ $? -ne 0 ]] ; then
-    echo "I cannot connect"
-    exit 1
-else
+if ssh -oConnectTimeout=2 "$1" true &>/dev/null ; then
     echo "Connection available"
     exit
+else
+    echo "I cannot connect"
+    exit 1
 fi
 

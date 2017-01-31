@@ -30,11 +30,9 @@ function needful() {
     local target_file
     source_file="$1"
     target_file="$2"
-    ssh-keygen -l -f "$source_file" &>/dev/null
-    if [ "$?" != "0" ] ; then
-        echo "$source_file does not appear to be a public key"
+    ssh-keygen -l -f "$source_file" &>/dev/null || \
+        echo "$source_file does not appear to be a public key" && \
         return 1
-    fi
     cat "$source_file" >> "$target_file"
 }
 export -f needful

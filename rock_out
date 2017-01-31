@@ -22,9 +22,7 @@ if [[ ! -d "$target_path" ]] ; then
     exit
 fi
 
-scp -l 4096 "$source_host:$source_path/*" "$tmp_path" && mv "$tmp_path/*" "$target_path/"
-
-if [[ $? -eq 0 ]] ; then
+if scp -l 4096 "$source_host:$source_path/*" "$tmp_path" && mv "$tmp_path/*" "$target_path/" ; then
     echo "Removing source files"
     ssh $source_host rm $source_path/*
 fi

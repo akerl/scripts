@@ -8,12 +8,14 @@ CACHE_DIR = [
   '/Library/Caches/Homebrew'
 ].find { |x| x && File.exist?(x) }
 
+CASKROOM = File.join `brew --prefix`.chomp, 'Caskroom'
+
 def get_hash(path)
   `shasum #{path}`.split.first
 end
 
 def current_version(cask_name)
-  version = Dir.new("/opt/homebrew-cask/Caskroom/#{cask_name}").to_a.last
+  version = Dir.new(File.join(CASKROOM, cask_name)).to_a.last
   version == 'latest' ? check_latest(cask_name) : version
 end
 

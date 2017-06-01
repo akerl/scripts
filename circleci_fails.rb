@@ -37,7 +37,7 @@ def all_statuses
 end
 
 def failing_projects
-  all_statuses.reject { |_, v| %w(success fixed running).include? v }
+  all_statuses.reject { |_, v| %w[success fixed running].include? v }
 end
 
 def print_report!

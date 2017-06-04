@@ -14,7 +14,7 @@ class Runner
 
   def run!
     results = Parallel.map(all_dirs) { |x| [x, worker(x)] }
-    failures = results.group_by(&:last)[false].map(&:first)
+    failures = (results.group_by(&:last)[false] || []).map(&:first)
     cache_failures(failures)
   end
 

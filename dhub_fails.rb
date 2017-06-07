@@ -4,12 +4,12 @@ require 'nokogiri'
 require 'open-uri'
 require 'parallel'
 
-ORGS = %w[akerl dock0 amylum halyard]
-GOOD_STATUSES = %i[success]
+ORGS = %w[akerl dock0 amylum halyard].freeze
+GOOD_STATUSES = %i[success].freeze
 
-BASE_URL = 'https://hub.docker.com/r'
-REPO_XPATH = '//div[contains(@class, "RepositoryListItem__repoName___")]'
-STATUS_XPATH = '//span[contains(@class, "BuildStatus__statusWrapper___")]'
+BASE_URL = 'https://hub.docker.com/r'.freeze
+REPO_XPATH = '//div[contains(@class, "RepositoryListItem__repoName___")]'.freeze
+STATUS_XPATH = '//span[contains(@class, "BuildStatus__statusWrapper__")]'.freeze
 
 def get_xpath(url, xpath)
   Nokogiri::HTML(open(url)).xpath(xpath).map(&:text)

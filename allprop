@@ -21,6 +21,13 @@ class Runner
 
   private
 
+  def prospectus_options
+    @prospectus_options ||= {
+      all: @options[:all],
+      good_only: @options[:good_only]
+    }
+  end
+
   def cache_file
     @cache_file ||= File.join(@options[:dir], '.allprop')
   end
@@ -43,7 +50,7 @@ class Runner
   def worker(dir)
     prefix = dir.split('/')[-2]
     Dir.chdir(dir) do
-      Prospectus.load.each do |x|
+      Prospectus.load(prospectus_options).each do |x|
         puts "#{prefix}:#{x.name}: #{x.actual} / #{x.expected}"
       end
     end
@@ -64,6 +71,8 @@ Mercenary.program(:allprop) do |p|
   p.option :cache, '-c', '--cache', 'Use cache to check only fails from last time'
   p.option :dir, '-d DIR', '--dir', 'Root dir (defaults to ~/src)'
   p.option :maxdepth, '-m DEPTH', '--maxdepth', 'Max depth to search'
+  p.option :all, '-a', '--all', 'Show all items'
+  p.option :good_only, '-g', '--good', 'Show only items with good state'
   # rubocop:enable Metrics/LineLength
 
   p.action do |_, options|

@@ -41,8 +41,11 @@ class Runner
   end
 
   def worker(dir)
+    prefix = dir.split('/')[-2]
     Dir.chdir(dir) do
-      Prospectus.load.each { |x| puts "#{x.name}: #{x.actual} / #{x.expected}" }
+      Prospectus.load.each do |x|
+        puts "#{prefix}:#{x.name}: #{x.actual} / #{x.expected}"
+      end
     end
   rescue Exception # rubocop:disable Lint/RescueException
     puts "Failed to load #{dir}"

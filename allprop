@@ -15,11 +15,18 @@ class Runner
 
   def run!
     results = Parallel.map(all_dirs) { |x| [x, worker(x)] }
-    failures = (results.group_by(&:last)[false] || []).map(&:first)
-    cache_failures(failures)
+    print_results(results)
+    cache_failures(results)
   end
 
   private
+
+  def print_results(results)
+    results.each do |dir, list|
+      prefix = dir.split('/')[-2]
+      list.each { |x| puts "#{prefix}:#{x.name}: #{x.actual} / #{x.expected}" }
+    end
+  end
 
   def prospectus_options
     @prospectus_options ||= {
@@ -49,16 +56,14 @@ class Runner
 
   def worker(dir)
     prefix = dir.split('/')[-2]
-    Dir.chdir(dir) do
-      Prospectus.load(prospectus_options).each do |x|
-        puts "#{prefix}:#{x.name}: #{x.actual} / #{x.expected}"
-      end
-    end
+    Dir.chdir(dir) { Prospectus.load(prospectus_options) }
   rescue Exception # rubocop:disable Lint/RescueException
     puts "Failed to load #{dir}"
+    []
   end
 
-  def cache_failures(failures)
+  def cache_failures(results)
+    failures = results.reject { |_, list| list.empty? }.map(&:first)
     File.open(cache_file, 'w') { |fh| fh << failures.join("\n") }
   end
 end

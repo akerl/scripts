@@ -2,7 +2,7 @@
 
 date="$(date --date='23:59:59 yesterday')"
 author="$(git config user.name)"
-for i in $(find . -name .git) ; do # shellcheck disable=SC2044
+for i in $(find . -name .git) ; do #shellcheck disable=SC2044
     count="$(git --git-dir="$i" log \
         --after="$date" \
         --author="$author" \

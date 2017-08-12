@@ -17,7 +17,7 @@ def update_file!(package, version)
   file = File.join(package, 'PKGBUILD')
   sha = check_sha(package, version)
   contents = File.read(file)
-  contents.sub!(/^pkgver=.*$/, "pkgver=#{version.tr('-', '_')}")
+  contents.sub!(/^pkgver=.*$/, "pkgver=#{version.value.tr('-', '_')}")
   contents.sub!(/^sha512sums=\("\w+"\)/, "sha512sums=(\"#{sha}\")")
   File.open(file, 'w') { |fh| fh << contents }
 end

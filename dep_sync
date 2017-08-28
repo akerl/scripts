@@ -4,7 +4,7 @@ require 'prospectus'
 require 'digest'
 require 'open-uri'
 
-def get_deps
+def load_deps
   Prospectus.load(all: true).map do |x|
     next nil unless x.name =~ /::/
     next nil if x.name =~ /circleci/
@@ -12,15 +12,15 @@ def get_deps
   end.compact
 end
 
-def get_checksum(dep, version)
+def load_checksum(dep, version)
   url = 'https://github.com/amylum/' \
         "#{dep}/releases/download/#{version}/#{dep}.tar.gz"
   Digest::SHA256.hexdigest open(url).read
 end
 
-def get_dep_text(deps)
+def load_dep_text(deps)
   deps.map do |name, version|
-    sum = get_checksum(name, version)
+    sum = load_checksum(name, version)
     sname = name.include?('-') ? "'#{name}'" : name
     "  #{sname}: {\n    version: '#{version}',\n    checksum: '#{sum}'\n  }"
   end.join(",\n")
@@ -31,6 +31,6 @@ def update_file!(text)
   File.open('.pkgforge', 'w') { |fh| fh << new }
 end
 
-deps = get_deps
-text = get_dep_text(deps)
+deps = load_deps
+text = load_dep_text(deps)
 update_file!(text)

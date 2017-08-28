@@ -24,5 +24,7 @@ preflight
 version = get_version
 revision = get_revision(version)
 
-system 'git', 'tag', "#{version}-#{revision}"
+tag = "#{version}-#{revision}"
+puts "Creating tag #{tag}"
+system 'git', 'tag', tag
 

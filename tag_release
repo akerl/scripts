@@ -33,4 +33,4 @@ revision = load_revision(version)
 tag = "#{version}-#{revision}"
 puts "Creating tag #{tag}"
 confirm unless noconfirm
-system 'git', 'tag', '-s', '-m', tag, tag
+system 'git', 'tag', '-m', tag, tag

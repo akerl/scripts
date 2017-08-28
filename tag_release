@@ -27,4 +27,3 @@ revision = load_revision(version)
 tag = "#{version}-#{revision}"
 puts "Creating tag #{tag}"
 system 'git', 'tag', '-s', '-m', tag, tag
-

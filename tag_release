@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'prospectus'
+require 'userinput'
 
 def preflight
   raise('No pkgforge found') unless File.exist? '.pkgforge'
@@ -9,9 +10,7 @@ end
 def load_version
   state = Prospectus.load(all: true).find { |x| x.name !~ /::/ }
   raise('No version info found') unless state
-  version = state.actual.value
-  raise('Version does not match latest') unless version == state.expected.value
-  version
+  state.expected.value
 end
 
 def load_revision(version)
@@ -20,10 +19,18 @@ def load_revision(version)
   (this_version.map { |x| x.split('-').last.to_i }.max || 0) + 1
 end
 
+def confirm
+  print 'Does this look correct? [Y/n] '
+  exit if gets.chomp.casecmp('n').zero?
+end
+
+noconfirm = ARGV.shift
+
 preflight
 version = load_version
 revision = load_revision(version)
 
 tag = "#{version}-#{revision}"
 puts "Creating tag #{tag}"
+confirm unless noconfirm
 system 'git', 'tag', '-s', '-m', tag, tag

@@ -3,26 +3,26 @@
 require 'prospectus'
 
 def preflight
-  fail('No pkgforge found') unless File.exist? '.pkgforge'
+  raise('No pkgforge found') unless File.exist? '.pkgforge'
 end
 
-def get_version
+def load_version
   state = Prospectus.load(all: true).find { |x| x.name !~ /::/ }
-  fail('No version info found') unless state
+  raise('No version info found') unless state
   version = state.actual.value
-  fail('Version does not match latest') unless version == state.expected.value
+  raise('Version does not match latest') unless version == state.expected.value
   version
 end
 
-def get_revision(version)
+def load_revision(version)
   tags = `git tag`.split("\n")
   this_version = tags.select { |x| x =~ /^#{Regexp.escape(version)}-/ }
   (this_version.map { |x| x.split('-').last.to_i }.max || 0) + 1
 end
 
 preflight
-version = get_version
-revision = get_revision(version)
+version = load_version
+revision = load_revision(version)
 
 tag = "#{version}-#{revision}"
 puts "Creating tag #{tag}"

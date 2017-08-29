@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'nokogiri'
-require 'json'
 
 APPLESCRIPT = '
 set searchString to "Custom Emoji"
@@ -82,4 +81,20 @@ EMOJI = PAGE.css('.emoji_row').select { |x| is_image(x) }.map do |x|
   ]
 end.to_h
 
-puts JSON.pretty_generate(EMOJI)
+mode = ARGV.shift
+
+case mode
+when 'json'
+  require 'json'
+  puts JSON.pretty_generate(EMOJI)
+when 'repl'
+  require 'pry'
+  binding.pry
+when 'download'
+  require 'open-uri'
+  EMOJI.each do |name, url|
+    File.open(name + '.png', 'w') { |fh| fh << open(url) }
+  end
+else
+  puts "Usage: #{$0} (download|repl|json)"
+end

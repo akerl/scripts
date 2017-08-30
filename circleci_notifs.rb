@@ -62,7 +62,7 @@ Mercenary.program(:circleci_notifs) do |p|
       next if settings['slack_webhook_url'] == hook
       puts "Updating settings for #{project}"
       settings['slack_webhook_url'] = hook
-      update(project,settings) unless options[:noop]
+      update(project, settings) unless options[:noop]
     end
   end
 end

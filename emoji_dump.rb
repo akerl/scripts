@@ -16,6 +16,11 @@ def emojis
   @emojis ||= Limp.tokens.map { |x| load_from_slack(x) }.to_h
 end
 
+def count
+  puts "Found #{emojis.size} teams"
+  puts "Found #{emojis.values.map(&:size).reduce(:+)} emoji"
+end
+
 # rubocop:disable Metrics/BlockLength
 Mercenary.program(:emoji_export) do |p|
   p.description 'Export emoji info from Slack'
@@ -35,8 +40,7 @@ Mercenary.program(:emoji_export) do |p|
     c.description 'Launch REPL with emoji info'
 
     c.action do |_, _|
-      puts "Found #{emojis.size} teams"
-      puts "Found #{emojis.values.map(&:size).reduce(:+)} emoji"
+      count
       binding.pry # rubocop:disable Lint/Debugger
     end
   end
@@ -46,7 +50,18 @@ Mercenary.program(:emoji_export) do |p|
     c.description 'Download emojis'
 
     c.action do |_, _|
-      puts 'I would download stuff if I knew how'
+      count
+      emojis.each do |team, list|
+        total = list.size
+        puts "Downloading from #{team}, total #{total}"
+        FileUtils.mkdir_p team
+        list.each_with_index do |(e_name, e_url), index|
+          next if e_url =~ /^alias:/ || e_url =~ /\.gif$/
+          puts "  Downloading #{e_name} (#{index}/#{total})"
+          file = File.join(team, e_name + '.png')
+          File.open(file, 'w') { |fh| fh << open(e_url) }
+        end
+      end
     end
   end
 

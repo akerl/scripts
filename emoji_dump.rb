@@ -59,7 +59,7 @@ Mercenary.program(:emoji_export) do |p|
           next if e_url =~ /^alias:/ || e_url =~ /\.gif$/
           puts "  Downloading #{e_name} (#{index}/#{total})"
           file = File.join(team, e_name + '.png')
-          File.open(file, 'w') { |fh| fh << open(e_url) }
+          File.open(file, 'w') { |fh| fh << open(e_url).read }
         end
       end
     end

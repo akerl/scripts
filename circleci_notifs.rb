@@ -57,12 +57,12 @@ Mercenary.program(:circleci_notifs) do |p|
   p.option :webhook, '-w HOOK', '--webhook HOOK', 'Webhook URL'
 
   p.action do |_, options|
-    raise('Please provide webhook') unless options[:webhook]
-    new_settings = build_settings(options)
-    to_change = projects.reject { |_, v| v == new_settings }.keys
-    to_change.each do |project|
+    hook = options[:webhook] || raise('Please provide webhook')
+    projects.each do |project, settings|
+      next if settings['slack_webhook_url'] == hook
       puts "Updating settings for #{project}"
-      update(project, new_settings) unless options[:noop]
+      settings['slack_webhook_url'] = hook
+      update(project,settings) unless options[:noop]
     end
   end
 end

@@ -32,4 +32,4 @@ fi
 # Make sure SSH key is loaded before kicking off workers
 ssh git@github.com &>/dev/null || true
 
-find . -type d -name '.git' -print0 | xargs -0 -n1 -P$PARALLEL -I{} bash -c "needful {}"
+find . -type d -name '.git' ! -path '*/.gopath/*' -print0 | xargs -0 -n1 -P$PARALLEL -I{} bash -c "needful {}"

@@ -8,7 +8,7 @@ PATTERN = File.join(ROOT, '**', '.pkgforge')
 GRAPH = GraphViz.new(:G, type: :digraph) do |g|
   Dir.glob(PATTERN).each do |file|
     pkg = PkgForge.load_from_file(file: file)
-    pkg.deps.keys.each do |target|
+    pkg.deps.each_key do |target|
       g.add_edges(pkg.name.to_s, target.to_s)
     end
   end

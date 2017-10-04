@@ -4,19 +4,21 @@ OLD_VERSION = ARGV.first
 
 raise("Usage: #{__FILE__} <old-version>") unless OLD_VERSION
 
-unless `rbenv versions --bare`.split.include? OLD_VERSION
+unless `asdf list ruby`.split.include? OLD_VERSION
   raise "Ruby version not found: #{OLD_VERSION}"
 end
 
-cmd = `RBENV_VERSION=#{OLD_VERSION} rbenv exec gem list`
-gems = cmd.lines.map { |x| x.gsub(/[\n(),]/, '').split }
+ENV['PATH'] = ENV['PATH'].split(':')[1..-1].join(':')
+cmd = `ASDF_RUBY_VERSION="#{OLD_VERSION}" gem list`
+lines = cmd.lines.reject { |x| x =~ /default:/ }
+gems = lines.map { |x| x.gsub(/[\n(),]/, '').split }
 
 def installed?(gem, version)
   system "gem list -i #{gem} -v #{version} >/dev/null 2>/dev/null"
 end
 
 gems.each do |gem, *versions|
-  versions.each do |version|
+  versions.select { |x| x =~ /^\d/ }.each do |version|
     next if installed? gem, version
     puts "Installing #{gem} #{version}"
     `gem install #{gem} -v #{version} >/dev/null 2>/dev/null`

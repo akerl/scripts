@@ -23,7 +23,8 @@ def update_file!(package, version)
 end
 
 Parallel.each(Prospectus.load) do |package|
-  name = package.name.split(':')[2]
+  section, name = package.name.split(':').values_at(2, 4)
+  next if section != 'pkgbuild'
   puts name
   update_file!(name, package.expected)
 end

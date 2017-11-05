@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+require 'octoauth'
+
+class Starlist
+  def list
+    @list ||= client.starred
+  end
+
+  def client
+    @client ||= Octokit::Client.new(
+      access_token: auth.token,
+      auto_paginate: true
+    )
+  end
+
+  def auth
+    @auth ||= Octoauth.new octoauth_options
+  end
+
+  def octoauth_options
+    {
+      note: 'Prospectus',
+      file: :default,
+      autosave: true
+    }
+  end
+end
+
+stars = Starlist.new
+puts stars.list.map(&:html_url)

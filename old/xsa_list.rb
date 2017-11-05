@@ -18,12 +18,12 @@ class XSA
   end
 
   def release_dt
-    @release_dt ||= DateTime.parse(@data[1].first)
+    @release_dt ||= Date.parse(@data[1].first)
   end
 
   def update_dt
     return false if @update_dt == false
-    @update_dt ||= DateTime.parse(@data[2].first)
+    @update_dt ||= Date.parse(@data[2].first)
   rescue TypeError
     @update_dt = false
   end

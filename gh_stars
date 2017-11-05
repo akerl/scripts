@@ -2,6 +2,8 @@
 
 require 'octoauth'
 
+##
+# Star API object
 class Starlist
   def list
     @list ||= client.starred

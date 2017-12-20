@@ -6,10 +6,10 @@ set -euo pipefail
 
 apt update
 apt upgrade -y
-apt install software-properties-common
+apt install -y software-properties-common
 apt-add-repository ppa:ansible/ansible
 apt update
-apt install ansible python-pip
+apt install -y ansible python-pip
 pip install virtualenv
 pip install --upgrade pip
 git clone https://github.com/trailofbits/algo /opt/algo

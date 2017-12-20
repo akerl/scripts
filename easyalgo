@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# curl -sL https://git.io/vbDoO | bash
+
 set -euo pipefail
 
 apt update

@@ -7,16 +7,15 @@ set -euo pipefail
 apt update
 apt upgrade -y
 apt install -y software-properties-common
-apt-add-repository ppa:ansible/ansible
+apt-add-repository -y ppa:ansible/ansible
 apt update
-apt install -y ansible python-pip
+apt install -y ansible python-pip git
 pip install virtualenv
 pip install --upgrade pip
 git clone https://github.com/trailofbits/algo /opt/algo
 cd /opt/algo
 python -m virtualenv env
 source env/bin/activate
-python -m pip install -U pip
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 ./algo
 

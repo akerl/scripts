@@ -70,3 +70,4 @@ Mercenary.program(:emoji_export) do |p|
     exit 1
   end
 end
+# rubocop:enable Metrics/BlockLength

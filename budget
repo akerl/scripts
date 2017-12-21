@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+# rubocop:disable Style/BlockComments
 =begin
 Example schema:
 
@@ -40,6 +41,7 @@ Schema reference:
     date
 
 =end
+# rubocop:enable Style/BlockComments
 
 require 'yaml'
 require 'date'

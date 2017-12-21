@@ -18,7 +18,7 @@ def git_commit!
   message = "Updated version of #{GEM} to #{NEW_VERSION}"
   run "git commit -am '#{message}'", 'Failed to commit change'
   run 'git push origin master', 'Failed to push change'
-rescue # rubocop:disable Lint/RescueWithoutErrorClass
+rescue # rubocop:disable Style/RescueStandardError
   puts "Failed to update #{repo_name}"
 end
 

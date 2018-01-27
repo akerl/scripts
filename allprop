@@ -14,7 +14,8 @@ class Runner
   end
 
   def run!
-    results = Parallel.map(all_dirs) { |x| [x, worker(x)] }
+    params = @options[:serial] ? {in_processes: 1} : {}
+    results = Parallel.map(all_dirs, params) { |x| [x, worker(x)] }
     print_results(results)
     cache_failures(results)
   end
@@ -77,6 +78,7 @@ Mercenary.program(:allprop) do |p|
   p.option :maxdepth, '-m DEPTH', '--maxdepth', 'Max depth to search'
   p.option :all, '-a', '--all', 'Show all items'
   p.option :good_only, '-g', '--good', 'Show only items with good state'
+  p.option :serial, '-s', '--serial', 'Do not parallelize execution'
   # rubocop:enable Metrics/LineLength
 
   p.action do |_, options|

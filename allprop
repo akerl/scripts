@@ -14,7 +14,7 @@ class Runner
   end
 
   def run!
-    params = @options[:serial] ? {in_processes: 1} : {}
+    params = @options[:serial] ? { in_processes: 1 } : {}
     results = Parallel.map(all_dirs, params) { |x| [x, worker(x)] }
     print_results(results)
     cache_failures(results)

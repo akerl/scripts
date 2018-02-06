@@ -24,6 +24,7 @@ class Runner
 
   def print_results(results)
     results.each do |dir, list|
+      next if list == [false]
       prefix = dir.split('/')[-2]
       list.each { |x| puts "#{prefix}:#{x.name}: #{x.actual} / #{x.expected}" }
     end
@@ -59,7 +60,7 @@ class Runner
     Dir.chdir(dir) { Prospectus.load(prospectus_options) }
   rescue Exception # rubocop:disable Lint/RescueException
     puts "Failed to load #{dir}"
-    []
+    [false]
   end
 
   def cache_failures(results)

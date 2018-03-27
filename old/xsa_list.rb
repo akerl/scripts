@@ -41,7 +41,8 @@ class XSA
   end
 end
 
-LIST = Nokogiri::HTML(open(URL)).xpath(XPATH)[1..-1].map { |x| XSA.new(x) }
+PAGE = open(URL) # rubocop:disable Security/Open
+LIST = Nokogiri::HTML(PAGE).xpath(XPATH)[1..-1].map { |x| XSA.new(x) }
 
 LIST.reverse.each do |xsa|
   puts [

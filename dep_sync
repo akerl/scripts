@@ -15,7 +15,7 @@ end
 def load_checksum(dep, version)
   url = 'https://github.com/amylum/' \
         "#{dep}/releases/download/#{version}/#{dep}.tar.gz"
-  Digest::SHA256.hexdigest open(url).read
+  Digest::SHA256.hexdigest open(url).read # rubocop:disable Security/Open
 end
 
 def load_dep_text(deps)

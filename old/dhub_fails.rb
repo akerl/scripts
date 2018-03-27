@@ -12,7 +12,9 @@ REPO_XPATH = '//div[contains(@class, "RepositoryListItem__repoName___")]'.freeze
 STATUS_XPATH = '//span[contains(@class, "BuildStatus__statusWrapper__")]'.freeze
 
 def get_xpath(url, xpath)
+  # rubocop:disable Security/Open
   Nokogiri::HTML(open(url)).xpath(xpath).map(&:text)
+  # rubocop:enable Security/Open
 end
 
 def fetch_repos(org, stack = [], index = 1)

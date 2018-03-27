@@ -65,7 +65,7 @@ end
 
 # Action that recurs monthly
 class Monthly < Action
-  def initialize(*_)
+  def initialize(*_) # rubocop:disable Naming/UncommunicativeMethodParamName
     super
     @when = [@when] unless @when.is_a? Array
   end

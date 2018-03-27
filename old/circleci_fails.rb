@@ -18,7 +18,7 @@ def api_url(path)
 end
 
 def api_req(path)
-  JSON.parse(open(api_url(path)).read)
+  JSON.parse(open(api_url(path)).read) # rubocop:disable Security/Open
 end
 
 def all_projects

@@ -10,7 +10,7 @@ def check_sha(package, version)
   url = 'https://github.com/amylum/' \
         "#{realname}/releases/download/#{version}/#{realname}.tar.gz"
   puts url
-  Digest::SHA512.hexdigest open(url).read
+  Digest::SHA512.hexdigest open(url).read # rubocop:disable Security/Open
 end
 
 def update_file!(package, version)

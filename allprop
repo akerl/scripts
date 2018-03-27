@@ -8,6 +8,7 @@ require 'prospectus'
 # Runner class to check prospectuses
 class Runner
   def initialize(params)
+    @program_name = $PROGRAM_NAME
     @options = params
     @options[:dir] ||= File.expand_path('~/src')
     @options[:maxdepth] ||= 2
@@ -57,6 +58,7 @@ class Runner
   end
 
   def worker(dir)
+    $PROGRAM_NAME = "#{@program_name} thread #{dir}"
     Dir.chdir(dir) { Prospectus.load(prospectus_options) }
   rescue Exception # rubocop:disable Lint/RescueException
     puts "Failed to load #{dir}"

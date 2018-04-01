@@ -38,13 +38,11 @@ namespaces = gitlab_client.namespaces.map { |x| [x.full_path, x.id] }.to_h
 
 pub_repos.each do |repo|
   org = repo.owner.login
-  namespace = namespaces[org] || fail("No Gitlab org for #{org}")
+  namespace = namespaces[org] || raise("No Gitlab org for #{org}")
   name = repo.name
   name = 'dotdotdot' if name == '...'
   full_name = org + '/' + name
-  p full_name
-  p already_migrated.keys
-  if already_migrated[full_name]
+  if already_migrated[full_name.downcase]
     puts "Skipping #{full_name}"
     next
   end
@@ -52,13 +50,14 @@ pub_repos.each do |repo|
   gitlab_client.create_project(
     name,
     namespace_id: namespace,
+    import_url: repo.clone_url,
     visibility: 'public',
     wiki_enabled: false,
     wall_enabled: false,
     issues_enabled: false,
     snippets_enabled: false,
-    merge_requests_enabled: false,
-    import_url: repo.clone_url
+    merge_requests_enabled: false
   )
-  raise
 end
+
+puts "Not migrating private repos: #{priv_repos.map(&:full_name).join(', ')}"

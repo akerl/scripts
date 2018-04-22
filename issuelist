@@ -5,6 +5,8 @@ require 'octokit'
 require 'net/http'
 require 'uri'
 
+##
+# Helper to shorten URLs
 class Shortener
   def shorten(url)
     return cached_url(url) if cached_url(url)
@@ -12,7 +14,7 @@ class Shortener
     File.open(CACHE_FILE, 'a') { |fh| fh << "#{url} #{new_url}\n" }
     new_url
   end
-  
+
   private
 
   CACHE_FILE = File.expand_path(ENV['ISSUES_CACHE_FILE'] || '~/.issues_cache')
@@ -43,6 +45,8 @@ class Shortener
   end
 end
 
+##
+# List open github issues
 class Lister
   def issues
     @issues ||= client.search_issues(query).items
@@ -78,7 +82,7 @@ class Lister
   end
 
   def orgs
-    @orgs ||= client.org_memberships.group_by(&:role)["admin"].map do |x|
+    @orgs ||= client.org_memberships.group_by(&:role)['admin'].map do |x|
       x.organization.login
     end
   end

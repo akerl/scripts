@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+
+require 'octoauth'
+require 'octokit'
+require 'net/http'
+require 'uri'
+
+class Shortener
+  def shorten(url)
+    return cached_url(url) if cached_url(url)
+    new_url = short_url(url)
+    File.open(CACHE_FILE, 'a') { |fh| fh << "#{url} #{new_url}\n" }
+    new_url
+  end
+  
+  private
+
+  CACHE_FILE = File.expand_path(ENV['ISSUES_CACHE_FILE'] || '~/.issues_cache')
+
+  def short_url_request(url)
+    request = Net::HTTP::Post.new('/')
+    request.content_type = 'application/x-www-form-urlencoded'
+    query = { url: url }
+    request.body = URI.encode_www_form(query)
+    request
+  end
+
+  def short_url(url)
+    Net::HTTP.start('git.io', 443, use_ssl: true) do |http|
+      response = http.request(short_url_request(url))
+      return response['Location'] if response['Location']
+      raise(response.body)
+    end
+  end
+
+  def cached_urls
+    @cached_urls ||= {} unless File.exist?(CACHE_FILE)
+    @cached_urls ||= File.read(CACHE_FILE).split("\n").map(&:split).to_h
+  end
+
+  def cached_url(url)
+    cached_urls[url]
+  end
+end
+
+class Lister
+  def issues
+    @issues ||= client.search_issues(query).items
+  end
+
+  def issue_list
+    @issue_list ||= issues.map do |x|
+      [
+        x.repository_url.split('/').pop(2).join('/'),
+        x.title,
+        shortener.shorten(x.html_url)
+      ]
+    end.sort_by(&:first)
+  end
+
+  private
+
+  def shortener
+    @shortener ||= Shortener.new
+  end
+
+  def token
+    @token ||= Octoauth.new(
+      note: 'issues',
+      file: :default,
+      autosave: true,
+      scopes: %w[repo]
+    ).token
+  end
+
+  def client
+    @client ||= Octokit::Client.new access_token: token, auto_paginate: true
+  end
+
+  def orgs
+    @orgs ||= client.org_memberships.group_by(&:role)["admin"].map do |x|
+      x.organization.login
+    end
+  end
+
+  def base_query
+    @base_query ||= "is:open is:issue user:#{client.login}"
+  end
+
+  def query
+    @query ||= orgs.reduce(base_query) do |acc, item|
+      acc << " user:#{item}"
+    end
+  end
+end
+
+list = Lister.new.issue_list
+repo_pad, _, url_pad = list.transpose.map { |x| x.map(&:size).max }
+list.each do |repo, title, url|
+  puts "#{url.ljust(url_pad)} #{repo.ljust(repo_pad)} #{title}"
+end

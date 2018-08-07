@@ -18,6 +18,8 @@ git clone https://github.com/trailofbits/algo /opt/algo
 
     local ip_addr="$(ip -4 addr show eth0 | awk '/inet/ {print $2}' | sed 's|/[0-9]*$||')"
 
+    vim config.cfg
+
     ansible-playbook \
         deploy.yml \
         -t local,vpn,ssh_tunneling \

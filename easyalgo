@@ -6,10 +6,7 @@ set -euo pipefail
 
 apt update
 apt upgrade -y
-apt install -y ansible python-pip build-essential python-dev
-
-pip install --upgrade pip
-pip install virtualenv
+apt install -y ansible python-pip build-essential python-dev python-virtualenv
 
 git clone https://github.com/trailofbits/algo /opt/algo
 (
@@ -19,12 +16,14 @@ git clone https://github.com/trailofbits/algo /opt/algo
     source env/bin/activate
     pip install -r requirements.txt
 
+    local ip_addr="$(ip -4 addr show eth0 | awk '/inet/ {print $2}' | sed 's|/[0-9]*$||')"
+
     ansible-playbook \
         deploy.yml \
         -t local,vpn,ssh_tunneling \
         -e "server_ip=localhost
             server_user=root
-            IP_subject_alt_name=96.126.120.115
+            IP_subject_alt_name=${ip_addr}
             OnDemandEnabled_Cellular=Y
             OnDemandEnabled_WIFI=Y
             OnDemandEnabled_WIFI_EXCLUDE='_null'" \

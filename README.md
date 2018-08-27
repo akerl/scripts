@@ -49,7 +49,6 @@ Creates an issue in the current GitHub repo
 Opens Gemnasium page for the current repo by parsing README.md for a badge line that matches this regex:
 
 ```
-^\[!\[Dependency Status\].*)](https://gemnasium.com/.*)'
 ```
 
 ### git-open

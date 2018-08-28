@@ -1,7 +1,7 @@
 scripts
 =========
 
-[![Build Status](https://img.shields.io/circleci/project/akerl/scripts/master.svg)](https://circleci.com/gh/akerl/scripts)
+[![Build Status](https://img.shields.io/travis/com/akerl/scripts.svg)](https://travis-ci.com/akerl/scripts)
 [![MIT Licensed](http://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://tldrlegal.com/license/mit-license)
 
 Personal scripts and such. Mostly written by me, but a couple borrowed from the internet and lots of the other ideas inspired by various folks.

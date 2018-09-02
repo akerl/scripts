@@ -7,7 +7,7 @@ require 'open-uri'
 def load_deps
   Prospectus.load(all: true).map do |x|
     next nil unless x.name =~ /::/
-    next nil if x.name =~ /circleci/
+    next nil if x.name =~ /circleci|travis/
     [x.name.split('::').last, x.expected]
   end.compact
 end

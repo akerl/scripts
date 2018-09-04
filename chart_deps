@@ -13,4 +13,4 @@ GRAPH = GraphViz.new(:G, type: :digraph) do |g|
     end
   end
 end
-GRAPH.output(png: 'graph.png')
+GRAPH.output(svg: 'graph.svg')

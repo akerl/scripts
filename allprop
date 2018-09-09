@@ -59,7 +59,7 @@ class Runner
 
   def worker(dir)
     $PROGRAM_NAME = "#{@program_name} thread #{dir}"
-    Dir.chdir(dir) { Prospectus.load(prospectus_options) }
+    Dir.chdir(dir) { Prospectus.check(prospectus_options) }
   rescue Exception # rubocop:disable Lint/RescueException
     puts "Failed to load #{dir}"
     [false]

@@ -1,3 +1,5 @@
+inherit_gem:
+  goodcop: .rubocop.yml
 AllCops:
   Exclude:
     - 'old/*'

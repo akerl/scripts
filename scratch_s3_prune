@@ -1,0 +1,72 @@
+#!usr/bin/env ruby
+
+require 'aws-sdk'
+require 'userinput'
+
+class Pruner
+  def client
+    @client ||= Aws::S3::Client.new
+  end
+
+  def prune!
+    sorted_folders.each do |hash, files|
+      print_folder(hash, files)
+      next unless prompt.ask
+
+      delete_folder(files)
+    end
+  end
+
+  def print_folder(hash, files)
+    puts "#{hash}/"
+    files.map do |file, timestamp|
+      puts "  #{timestamp.strftime("%Y/%m/%d")} #{url(file)}"
+    end
+  end
+
+  def prompt
+    @prompt ||= UserInput::Boolean.new(
+      message: 'Do you want to prune this folder',
+      default: 'n'
+    )
+  end
+
+  def delete_folder(files)
+    puts "Pruning #{files.size} files"
+    resp = client.delete_objects(
+      bucket: bucket,
+      delete: {
+        objects: files.map { |key, _| { key: key } }
+      }
+    )
+    raise("Delete failed: #{resp.errors}") unless resp.errors.empty?
+  end
+
+  def url(file)
+    "#{hostname}/#{file}"
+  end
+
+  def bucket
+    @bucket ||= ENV['SCRATCH_BUCKET'] || raise('SCRATCH_BUCKET not set')
+  end
+
+  def hostname
+    @hostname ||= ENV['SCRATCH_HOSTNAME'] || raise('SCRATCH_HOSTNAME not set')
+  end
+
+  def all_objects
+    @all_objects ||= client.list_objects(bucket: bucket).flat_map do |resp|
+      resp.contents.map { |x| [x.key, x.last_modified] }
+    end
+  end
+
+  def all_folders
+    @all_folders ||= all_objects.group_by { |key, _| key.split('/').first }
+  end
+
+  def sorted_folders
+    @sorted_folders ||= all_folders.to_a.sort_by { |x| x.last.map(&:last).max }
+  end
+end
+
+Pruner.new.prune!

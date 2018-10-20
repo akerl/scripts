@@ -2,9 +2,6 @@
 
 set -euo pipefail
 
-: ${SCRATCH_BUCKET:=akerl-scratch}
-: ${SCRATCH_HOSTNAME:=https://scratch.scrtybybscrty.org}
-
 uuid="$(uuidgen)"
 basepath="s3://${SCRATCH_BUCKET}/${uuid}/"
 

@@ -3,6 +3,8 @@
 require 'aws-sdk'
 require 'userinput'
 
+##
+# Pruner checks for scratch files and prunes them
 class Pruner
   def client
     @client ||= Aws::S3::Client.new
@@ -20,7 +22,7 @@ class Pruner
   def print_folder(hash, files)
     puts "#{hash}/"
     files.map do |file, timestamp|
-      puts "  #{timestamp.strftime("%Y/%m/%d")} #{url(file)}"
+      puts "  #{timestamp.strftime('%Y/%m/%d')} #{url(file)}"
     end
   end
 

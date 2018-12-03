@@ -77,7 +77,7 @@ def all_repos
 end
 
 GEM = ARGV.shift || help
-REGEX = /(?<= '#{GEM}', '~> )[\w.]+(?=')/
+REGEX = /(?<= '#{GEM}', '~> )[\w.]+(?=')/.freeze
 NEW_VERSION = ARGV.shift || help
 NOCONFIRM = ARGV.shift || nil
 help unless GEM.match(/^\S+$/) && NEW_VERSION.match(/^[\w.]+$/)

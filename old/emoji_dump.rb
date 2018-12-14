@@ -7,13 +7,10 @@ require 'json'
 require 'open-uri'
 require 'mercenary'
 
-def load_from_slack(token)
-  client = Slack::Web::Client.new(token: token)
-  [client.team_info.team.name, client.emoji_list.emoji]
-end
-
 def emojis
-  @emojis ||= Limp.tokens.map { |x| load_from_slack(x) }.to_h
+  @emojis ||= Limp.clients.map do |x|
+    [x.team_info.team.name, x.emoji_list.emoji]
+  end.to_h
 end
 
 def count

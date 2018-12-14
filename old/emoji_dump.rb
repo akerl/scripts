@@ -54,8 +54,10 @@ Mercenary.program(:emoji_export) do |p|
         FileUtils.mkdir_p team
         list.each_with_index do |(e_name, e_url), index|
           next if e_url =~ /^alias:/ || e_url =~ /\.gif$/
+          ext = e_url.split('.').last
+          file = File.join(team, e_name + '.' + ext)
+          next if File.exist? file
           puts "  Downloading #{e_name} (#{index}/#{total})"
-          file = File.join(team, e_name + '.png')
           page = open(e_url) # rubocop:disable Security/Open
           File.open(file, 'w') { |fh| fh << page.read }
         end

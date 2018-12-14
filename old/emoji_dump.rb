@@ -53,7 +53,7 @@ Mercenary.program(:emoji_export) do |p|
         puts "Downloading from #{team}, total #{total}"
         FileUtils.mkdir_p team
         list.each_with_index do |(e_name, e_url), index|
-          next if e_url =~ /^alias:/ || e_url =~ /\.gif$/
+          next if e_url =~ /^alias:/
           ext = e_url.split('.').last
           file = File.join(team, e_name + '.' + ext)
           next if File.exist? file

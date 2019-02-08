@@ -23,7 +23,9 @@ function needful () {
 export -f needful
 
 
-if [ -n "$SLOW_SSH" ] ; then
+if [ -n "$REPO_SYNC_WORKERS" ] ; then
+    PARALLEL="$REPO_SYNC_WORKERS"
+elif [ -n "$SLOW_SSH" ] ; then
     PARALLEL=1
 else
     PARALLEL=10
@@ -32,4 +34,4 @@ fi
 # Make sure SSH key is loaded before kicking off workers
 ssh git@github.com &>/dev/null || true
 
-find . -type d -name '.git' ! -path '*/.gopath/*' -print0 | xargs -0 -n1 -P$PARALLEL -I{} bash -c "needful {}"
+find . -type d -name '.git' ! -path '*/.gopath/*' -print0 | xargs -0 -n1 "-P$PARALLEL" -I{} bash -c "needful {}"

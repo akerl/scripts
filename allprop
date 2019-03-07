@@ -54,7 +54,8 @@ class Runner
   end
 
   def all_dirs
-    @all_dirs ||= load_cache || all_files.map { |x| File.dirname(x) }
+    @all_dirs ||= load_cache
+    @all_dirs ||= all_files.map { |x| File.dirname(x) }.sort.reverse
   end
 
   def worker(dir)

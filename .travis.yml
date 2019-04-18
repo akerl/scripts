@@ -7,7 +7,7 @@ install:
 - sudo apt-get install -y shellcheck
 - gem install rubocop goodcop
 script:
-- find . -perm +111 -type f ! -path './.git/*' | xargs shellcheck -e SC1071
+- find . -executable -type f ! -path './.git/*' | xargs shellcheck -e SC1071
 - rubocop -D
 notifications:
   email: false

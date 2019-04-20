@@ -36,7 +36,7 @@ git rev-parse --is-inside-work-tree &>/dev/null || \
 # assume origin if not provided
 # fallback to upstream if neither is present.
 remote="origin"
-if [ ! -z "$1" ]
+if [ -n "$1" ]
 then
     remote="$1"
 fi
@@ -72,7 +72,7 @@ else
     branch="$2"
 fi
 
-if [ ! -z "$branch" ]
+if [ -n "$branch" ]
 then
     giturl="${giturl}/${providerUrlDifference}/${branch}"
 fi
